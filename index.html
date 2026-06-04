@@ -7,467 +7,180 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-
   :root {
-    --bg: #0f0f0f;
-    --bg2: #171717;
-    --bg3: #1f1f1f;
-    --bg4: #262626;
-    --border: #2a2a2a;
-    --border2: #333;
-    --text: #f0f0f0;
-    --text2: #888;
-    --text3: #555;
-    --accent: #e8ff47;
-    --accent-dim: rgba(232,255,71,0.1);
-    --accent-dim2: rgba(232,255,71,0.05);
-    --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.1);
-    --amber: #fbbf24;
-    --amber-dim: rgba(251,191,36,0.1);
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.1);
-    --blue: #60a5fa;
-    --blue-dim: rgba(96,165,250,0.1);
-    --r: 6px;
-    --r2: 10px;
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
+    --bg:#0f0f0f;--bg2:#171717;--bg3:#1f1f1f;--bg4:#262626;
+    --border:#2a2a2a;--border2:#333;
+    --text:#f0f0f0;--text2:#888;--text3:#555;
+    --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);--accent-dim2:rgba(232,255,71,0.05);
+    --green:#4ade80;--green-dim:rgba(74,222,128,0.1);
+    --amber:#fbbf24;--amber-dim:rgba(251,191,36,0.1);
+    --red:#f87171;--red-dim:rgba(248,113,113,0.1);
+    --blue:#60a5fa;--blue-dim:rgba(96,165,250,0.1);
+    --r:6px;--r2:10px;
+    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 14px;
-    min-height: 100vh;
-    display: flex;
-  }
-
-  /* ── Sidebar ── */
-  .sidebar {
-    width: 220px;
-    min-width: 220px;
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 24px 0;
-    position: fixed;
-    top: 0; bottom: 0; left: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    padding: 0 20px 24px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-  .logo-mark {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .logo-icon {
-    width: 30px; height: 30px;
-    background: var(--accent);
-    border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .logo-icon svg { width: 18px; height: 18px; }
-  .logo-name { font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
-  .logo-sub { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
-
-  .nav { flex: 1; padding: 8px 12px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px;
-    border-radius: var(--r);
-    cursor: pointer;
-    color: var(--text2);
-    font-size: 13px;
-    transition: all 0.12s;
-    margin-bottom: 2px;
-    border: none; background: none; width: 100%; text-align: left;
-  }
-  .nav-item:hover { background: var(--bg3); color: var(--text); }
-  .nav-item.active { background: var(--accent-dim); color: var(--accent); }
-  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
-
-  .nav-badge {
-    margin-left: auto;
-    font-size: 10px;
-    font-family: var(--mono);
-    padding: 1px 6px;
-    border-radius: 20px;
-    background: var(--bg4);
-    color: var(--text2);
-  }
-  .nav-item.active .nav-badge { background: var(--accent); color: #000; }
-
-  .sidebar-footer {
-    padding: 16px 20px 0;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    color: var(--text3);
-    font-family: var(--mono);
-  }
-
-  /* ── Main ── */
-  .main {
-    margin-left: 220px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  .topbar {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky; top: 0; z-index: 50;
-  }
-  .topbar-title { font-size: 16px; font-weight: 500; }
-  .topbar-sub { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
-
-  .topbar-actions { display: flex; gap: 8px; }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px;
-    border-radius: var(--r);
-    font-size: 13px;
-    font-family: var(--sans);
-    cursor: pointer;
-    transition: all 0.12s;
-    border: 1px solid var(--border2);
-    background: var(--bg3);
-    color: var(--text);
-  }
-  .btn:hover { background: var(--bg4); border-color: #444; }
-  .btn svg { width: 14px; height: 14px; }
-
-  .btn-accent {
-    background: var(--accent);
-    color: #000;
-    border-color: transparent;
-    font-weight: 500;
-  }
-  .btn-accent:hover { background: #d4e840; }
-
-  .btn-danger { color: var(--red); border-color: var(--red-dim); }
-  .btn-danger:hover { background: var(--red-dim); }
-
-  /* ── Content ── */
-  .content { padding: 32px; flex: 1; }
-
-  /* ── Stats ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--r2);
-    padding: 18px 20px;
-  }
-  .stat-label { font-size: 11px; color: var(--text3); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
-  .stat-val { font-size: 28px; font-weight: 300; font-family: var(--mono); }
-  .stat-val.green { color: var(--green); }
-  .stat-val.amber { color: var(--amber); }
-  .stat-val.red { color: var(--red); }
-  .stat-val.blue { color: var(--blue); }
-  .stat-desc { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-  /* ── Filter bar ── */
-  .filter-bar {
-    display: flex; gap: 8px; align-items: center;
-    margin-bottom: 20px; flex-wrap: wrap;
-  }
-  .filter-btn {
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    border: 1px solid var(--border2);
-    background: transparent;
-    color: var(--text2);
-    cursor: pointer;
-    font-family: var(--sans);
-    transition: all 0.1s;
-  }
-  .filter-btn:hover { border-color: #444; color: var(--text); }
-  .filter-btn.active { background: var(--accent); color: #000; border-color: transparent; font-weight: 500; }
-
-  .search-input {
-    margin-left: auto;
-    padding: 6px 12px;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: var(--r);
-    color: var(--text);
-    font-size: 13px;
-    font-family: var(--sans);
-    outline: none;
-    width: 200px;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-input::placeholder { color: var(--text3); }
-
-  /* ── Card grid ── */
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
-  }
-
-  .sd-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--r2);
-    padding: 18px;
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
-    overflow: hidden;
-  }
-  .sd-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--border);
-    transition: background 0.15s;
-  }
-  .sd-card.s-ledig::before { background: var(--green); }
-  .sd-card.s-ude::before { background: var(--amber); }
-  .sd-card.s-savnet::before { background: var(--red); }
-  .sd-card:hover { border-color: #3a3a3a; background: var(--bg3); }
-
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-  .card-id { font-family: var(--mono); font-size: 15px; font-weight: 500; letter-spacing: 0.05em; }
-
-  .badge {
-    font-size: 10px;
-    font-family: var(--mono);
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .badge-ledig { background: var(--green-dim); color: var(--green); }
-  .badge-ude { background: var(--amber-dim); color: var(--amber); }
-  .badge-savnet { background: var(--red-dim); color: var(--red); }
-
-  .card-cap { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-bottom: 10px; }
-
-  .card-info { font-size: 12px; color: var(--text2); line-height: 1.6; }
-  .card-info .person { color: var(--text); font-weight: 500; }
-  .card-info .project { color: var(--blue); }
-
-  .card-date { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-
-  /* ── Log ── */
-  .log-table { width: 100%; border-collapse: collapse; }
-  .log-table th {
-    text-align: left;
-    font-size: 10px;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text3);
-    padding: 0 16px 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .log-row { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-  .log-row:hover { background: var(--bg3); }
-  .log-row td { padding: 12px 16px; font-size: 13px; }
-  .log-time { font-family: var(--mono); font-size: 11px; color: var(--text3); white-space: nowrap; }
-  .log-action { }
-  .log-card-id { font-family: var(--mono); font-weight: 500; }
-  .log-who { color: var(--text2); }
-
-  /* ── QR print section ── */
-  .qr-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-  }
-  .qr-item {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--r2);
-    padding: 20px;
-    text-align: center;
-  }
-  .qr-item canvas, .qr-item img { border-radius: 4px; }
-  .qr-item-id { font-family: var(--mono); font-size: 14px; font-weight: 500; margin-bottom: 4px; margin-top: 12px; }
-  .qr-item-cap { font-size: 11px; color: var(--text3); font-family: var(--mono); }
-
-  /* ── Modal ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    backdrop-filter: blur(4px);
-  }
-  .modal {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 12px;
-    padding: 28px;
-    width: 420px;
-    max-width: 94vw;
-  }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .modal-title { font-size: 16px; font-weight: 500; }
-  .modal-id { font-family: var(--mono); font-size: 12px; color: var(--text3); }
-
-  .form-field { margin-bottom: 16px; }
-  .form-label { font-size: 11px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); display: block; margin-bottom: 6px; }
-  .form-input, .form-select {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: var(--r);
-    color: var(--text);
-    font-size: 13px;
-    font-family: var(--sans);
-    padding: 9px 12px;
-    outline: none;
-    transition: border-color 0.12s;
-    appearance: none;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--accent); }
-
-  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
-
-  /* ── Views ── */
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* ── Empty state ── */
-  .empty {
-    text-align: center;
-    padding: 64px;
-    color: var(--text3);
-    font-size: 13px;
-  }
-  .empty svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.3; }
-
-  /* ── Print ── */
-  @media print {
-    .sidebar, .topbar, .filter-bar, .stats-grid, .nav-item, .btn, .topbar-actions { display: none !important; }
-    .main { margin-left: 0; }
-    .content { padding: 0; }
-    .qr-grid { grid-template-columns: repeat(4, 1fr); }
-    .qr-item { border: 1px solid #ccc; background: white; color: black; }
-    .qr-item-id, .qr-item-cap { color: black; }
-  }
-
-  /* ── Scan banner ── */
-  .scan-banner {
-    background: var(--accent-dim2);
-    border: 1px solid rgba(232,255,71,0.15);
-    border-radius: var(--r2);
-    padding: 16px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    color: var(--text2);
-  }
-  .scan-banner svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
-
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
-    vertical-align: middle;
-  }
-  .dot-ledig { background: var(--green); }
-  .dot-ude { background: var(--amber); }
-  .dot-savnet { background: var(--red); }
-
-  select option { background: #222; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;display:flex;}
+  .sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:fixed;top:0;bottom:0;left:0;z-index:100;}
+  .logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .logo-mark{display:flex;align-items:center;gap:8px;}
+  .logo-icon{width:30px;height:30px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;}
+  .logo-icon svg{width:18px;height:18px;}
+  .logo-name{font-size:14px;font-weight:600;letter-spacing:0.02em;}
+  .logo-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+  .nav{flex:1;padding:8px 12px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.12s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+  .nav-item:hover{background:var(--bg3);color:var(--text);}
+  .nav-item.active{background:var(--accent-dim);color:var(--accent);}
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+  .nav-badge{margin-left:auto;font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:20px;background:var(--bg4);color:var(--text2);}
+  .nav-item.active .nav-badge{background:var(--accent);color:#000;}
+  .sidebar-footer{padding:16px 20px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);font-family:var(--mono);}
+  .sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;}
+  .sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+  .sync-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+  .topbar-title{font-size:16px;font-weight:500;}
+  .topbar-sub{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+  .topbar-actions{display:flex;gap:8px;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-family:var(--sans);cursor:pointer;transition:all 0.12s;border:1px solid var(--border2);background:var(--bg3);color:var(--text);}
+  .btn:hover{background:var(--bg4);border-color:#444;}
+  .btn svg{width:14px;height:14px;}
+  .btn-accent{background:var(--accent);color:#000;border-color:transparent;font-weight:500;}
+  .btn-accent:hover{background:#d4e840;}
+  .btn-danger{color:var(--red);border-color:var(--red-dim);}
+  .btn-danger:hover{background:var(--red-dim);}
+  .content{padding:32px;flex:1;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+  .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;}
+  .stat-label{font-size:11px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+  .stat-val{font-size:28px;font-weight:300;font-family:var(--mono);}
+  .stat-val.green{color:var(--green);}
+  .stat-val.amber{color:var(--amber);}
+  .stat-val.red{color:var(--red);}
+  .stat-val.blue{color:var(--blue);}
+  .stat-desc{font-size:11px;color:var(--text3);margin-top:4px;}
+  .filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  .filter-btn{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all 0.1s;}
+  .filter-btn:hover{border-color:#444;color:var(--text);}
+  .filter-btn.active{background:var(--accent);color:#000;border-color:transparent;font-weight:500;}
+  .search-input{margin-left:auto;padding:6px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--sans);outline:none;width:200px;}
+  .search-input:focus{border-color:var(--accent);}
+  .search-input::placeholder{color:var(--text3);}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .sd-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;}
+  .sd-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border);transition:background 0.15s;}
+  .sd-card.s-ledig::before{background:var(--green);}
+  .sd-card.s-ude::before{background:var(--amber);}
+  .sd-card.s-savnet::before{background:var(--red);}
+  .sd-card:hover{border-color:#3a3a3a;background:var(--bg3);}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+  .card-id{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:0.05em;}
+  .badge{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:20px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;}
+  .badge-ledig{background:var(--green-dim);color:var(--green);}
+  .badge-ude{background:var(--amber-dim);color:var(--amber);}
+  .badge-savnet{background:var(--red-dim);color:var(--red);}
+  .card-cap{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:10px;}
+  .card-info{font-size:12px;color:var(--text2);line-height:1.6;}
+  .card-info .person{color:var(--text);font-weight:500;}
+  .card-info .project{color:var(--blue);}
+  .card-date{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+  .log-table{width:100%;border-collapse:collapse;}
+  .log-table th{text-align:left;font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:0 16px 12px;border-bottom:1px solid var(--border);}
+  .log-row{border-bottom:1px solid var(--border);transition:background 0.1s;}
+  .log-row:hover{background:var(--bg3);}
+  .log-row td{padding:12px 16px;font-size:13px;}
+  .log-time{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
+  .log-card-id{font-family:var(--mono);font-weight:500;}
+  .log-who{color:var(--text2);}
+  .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+  .qr-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;text-align:center;}
+  .qr-item canvas,.qr-item img{border-radius:4px;}
+  .qr-item-id{font-family:var(--mono);font-size:14px;font-weight:500;margin-bottom:4px;margin-top:12px;}
+  .qr-item-cap{font-size:11px;color:var(--text3);font-family:var(--mono);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:28px;width:420px;max-width:94vw;}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .modal-title{font-size:16px;font-weight:500;}
+  .modal-id{font-family:var(--mono);font-size:12px;color:var(--text3);}
+  .form-field{margin-bottom:16px;}
+  .form-label{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);display:block;margin-bottom:6px;}
+  .form-input,.form-select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--sans);padding:9px 12px;outline:none;transition:border-color 0.12s;appearance:none;}
+  .form-input:focus,.form-select:focus{border-color:var(--accent);}
+  .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+  .view{display:none;}
+  .view.active{display:block;}
+  .empty{text-align:center;padding:64px;color:var(--text3);font-size:13px;}
+  .empty svg{width:40px;height:40px;margin-bottom:12px;opacity:0.3;}
+  .status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;}
+  .dot-ledig{background:var(--green);}
+  .dot-ude{background:var(--amber);}
+  .dot-savnet{background:var(--red);}
+  select option{background:#222;}
+  .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
+  .loading-spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-size:13px;color:var(--text3);font-family:var(--mono);}
+  @media print{.sidebar,.topbar,.filter-bar,.stats-grid,.topbar-actions{display:none!important;}.main{margin-left:0;}.content{padding:0;}.qr-grid{grid-template-columns:repeat(4,1fr);}.qr-item{border:1px solid #ccc;background:white;color:black;}.qr-item-id,.qr-item-cap{color:black;}}
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Forbinder til database…</div>
+</div>
+
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round">
-          <rect x="3" y="7" width="18" height="14" rx="2"/>
-          <path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/>
-          <line x1="12" y1="12" x2="12" y2="16"/>
-          <line x1="10" y1="14" x2="14" y2="14"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
       </div>
       <div>
         <div class="logo-name">SD Tracker</div>
-        <div class="logo-sub">v1.0</div>
+        <div class="logo-sub">live · delt</div>
       </div>
     </div>
   </div>
-
   <nav class="nav">
-    <button class="nav-item active" onclick="showView('oversigt', this)" id="nav-oversigt">
+    <button class="nav-item active" onclick="showView('oversigt',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Oversigt
-      <span class="nav-badge" id="badge-all">0</span>
+      Oversigt <span class="nav-badge" id="badge-all">0</span>
     </button>
-    <button class="nav-item" onclick="showView('ledig', this)" id="nav-ledig">
+    <button class="nav-item" onclick="showView('ledig',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-      Ledige kort
-      <span class="nav-badge" id="badge-ledig">0</span>
+      Ledige <span class="nav-badge" id="badge-ledig">0</span>
     </button>
-    <button class="nav-item" onclick="showView('ude', this)" id="nav-ude">
+    <button class="nav-item" onclick="showView('ude',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-      Ude på optagelse
-      <span class="nav-badge" id="badge-ude">0</span>
+      Ude <span class="nav-badge" id="badge-ude">0</span>
     </button>
-    <button class="nav-item" onclick="showView('savnet', this)" id="nav-savnet">
+    <button class="nav-item" onclick="showView('savnet',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Savnede
-      <span class="nav-badge" id="badge-savnet">0</span>
+      Savnede <span class="nav-badge" id="badge-savnet">0</span>
     </button>
-    <button class="nav-item" onclick="showView('log', this)" id="nav-log">
+    <button class="nav-item" onclick="showView('log',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Aktivitetslog
     </button>
-    <button class="nav-item" onclick="showView('qr', this)" id="nav-qr">
+    <button class="nav-item" onclick="showView('qr',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3z"/><path d="M17 17h4"/><path d="M21 14v4"/></svg>
       QR-koder
     </button>
-    <button class="nav-item" onclick="showView('fotografer', this)" id="nav-fotografer">
+    <button class="nav-item" onclick="showView('fotografer',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
       Fotografer
     </button>
   </nav>
-
   <div class="sidebar-footer">
-    SD-kort tracker<br>
+    <span class="sync-dot" id="sync-dot"></span><span id="sync-status">forbinder…</span><br>
     <span id="footer-date"></span>
   </div>
 </aside>
 
-<!-- Main -->
 <div class="main">
   <div class="topbar">
     <div>
@@ -487,81 +200,33 @@
   </div>
 
   <div class="content">
-
-    <!-- Oversigt -->
     <div class="view active" id="view-oversigt">
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total kort</div>
-          <div class="stat-val blue" id="s-total">0</div>
-          <div class="stat-desc">registrerede i systemet</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Ledige</div>
-          <div class="stat-val green" id="s-ledig">0</div>
-          <div class="stat-desc">klar til brug</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Ude på optagelse</div>
-          <div class="stat-val amber" id="s-ude">0</div>
-          <div class="stat-desc">hos fotografer</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Savnede</div>
-          <div class="stat-val red" id="s-savnet">0</div>
-          <div class="stat-desc">ikke returneret</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Total kort</div><div class="stat-val blue" id="s-total">—</div><div class="stat-desc">registrerede i systemet</div></div>
+        <div class="stat-card"><div class="stat-label">Ledige</div><div class="stat-val green" id="s-ledig">—</div><div class="stat-desc">klar til brug</div></div>
+        <div class="stat-card"><div class="stat-label">Ude på optagelse</div><div class="stat-val amber" id="s-ude">—</div><div class="stat-desc">hos fotografer</div></div>
+        <div class="stat-card"><div class="stat-label">Savnede</div><div class="stat-val red" id="s-savnet">—</div><div class="stat-desc">ikke returneret</div></div>
       </div>
       <div class="filter-bar">
-        <button class="filter-btn active" onclick="setFilter('alle', this)">Alle</button>
-        <button class="filter-btn" onclick="setFilter('ledig', this)">
-          <span class="status-dot dot-ledig"></span>Ledige
-        </button>
-        <button class="filter-btn" onclick="setFilter('ude', this)">
-          <span class="status-dot dot-ude"></span>Ude
-        </button>
-        <button class="filter-btn" onclick="setFilter('savnet', this)">
-          <span class="status-dot dot-savnet"></span>Savnede
-        </button>
+        <button class="filter-btn active" onclick="setFilter('alle',this)">Alle</button>
+        <button class="filter-btn" onclick="setFilter('ledig',this)"><span class="status-dot dot-ledig"></span>Ledige</button>
+        <button class="filter-btn" onclick="setFilter('ude',this)"><span class="status-dot dot-ude"></span>Ude</button>
+        <button class="filter-btn" onclick="setFilter('savnet',this)"><span class="status-dot dot-savnet"></span>Savnede</button>
         <input class="search-input" type="text" placeholder="Søg kort-ID eller fotograf…" id="search-input" oninput="renderCards()">
       </div>
       <div class="card-grid" id="card-grid"></div>
     </div>
-
-    <!-- Ledig view -->
-    <div class="view" id="view-ledig">
-      <div class="card-grid" id="card-grid-ledig"></div>
-    </div>
-
-    <!-- Ude view -->
-    <div class="view" id="view-ude">
-      <div class="card-grid" id="card-grid-ude"></div>
-    </div>
-
-    <!-- Savnet view -->
-    <div class="view" id="view-savnet">
-      <div class="card-grid" id="card-grid-savnet"></div>
-    </div>
-
-    <!-- Log -->
+    <div class="view" id="view-ledig"><div class="card-grid" id="card-grid-ledig"></div></div>
+    <div class="view" id="view-ude"><div class="card-grid" id="card-grid-ude"></div></div>
+    <div class="view" id="view-savnet"><div class="card-grid" id="card-grid-savnet"></div></div>
     <div class="view" id="view-log">
       <table class="log-table">
-        <thead>
-          <tr>
-            <th>Tidspunkt</th>
-            <th>Kort</th>
-            <th>Handling</th>
-            <th>Fotograf</th>
-            <th>Produktion</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Tidspunkt</th><th>Kort</th><th>Handling</th><th>Fotograf</th><th>Produktion</th></tr></thead>
         <tbody id="log-body"></tbody>
       </table>
     </div>
-
-    <!-- QR-koder -->
     <div class="view" id="view-qr">
-      <div style="display:flex; gap:8px; margin-bottom:20px;">
+      <div style="display:flex;gap:8px;margin-bottom:20px;">
         <button class="btn btn-accent" onclick="window.print()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Print alle QR-koder
@@ -569,8 +234,6 @@
       </div>
       <div class="qr-grid" id="qr-grid"></div>
     </div>
-
-    <!-- Fotografer -->
     <div class="view" id="view-fotografer">
       <div style="display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;">
         <div>
@@ -590,120 +253,154 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- Modals -->
 <div id="modal-area"></div>
 
 <script>
-// ── Data ──────────────────────────────────────────────────
-const STORAGE_KEY = 'sdtracker_v1';
+// ── Supabase ──────────────────────────────────────────────
+const SUPABASE_URL = 'https://aeyfwjptisufgghtzdpn.supabase.co'.replace('ф','');
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleWZ3anB0aXN1ZmdnaHR6ZHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODU4NDYsImV4cCI6MjA5NjA2MTg0Nn0.CZoswGagx3BF-ynuInKoA8KqdFd6R2ItKhuL7QMbwjg';
 
-function loadData() {
+const SUPABASE_URL_REAL = 'https://aeyfwjptisufgghtzdpn.supabase.co'.replace('ф','');
+
+async function sb(method, table, body, query='') {
+  setSyncing(true);
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return null;
+    const res = await fetch(`https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/${table}${query}`.replace(/ф/g,'f'), {
+      method,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const text = await res.text();
+    setSyncing(false);
+    if (!res.ok) throw new Error(text);
+    return text ? JSON.parse(text) : [];
+  } catch(e) {
+    setError();
+    throw e;
+  }
 }
 
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ cards, log, photographers }));
+const api = {
+  getCards:  ()        => sb('GET',    'cards',         null,  '?order=id'),
+  upsertCard:(card)    => sb('POST',   'cards',         card,  '?on_conflict=id'),
+  deleteCard:(id)      => sb('DELETE', 'cards',         null,  `?id=eq.${id}`),
+  getPhotographers: () => sb('GET',    'photographers', null,  '?order=name'),
+  addPhotographer: (name) => sb('POST','photographers', {name},'?on_conflict=name'),
+  deletePhotographer:(name)=> sb('DELETE','photographers',null,`?name=eq.${encodeURIComponent(name)}`),
+  getLog:    ()        => sb('GET',    'activity_log',  null,  '?order=ts.desc&limit=200'),
+  addLog:    (entry)   => sb('POST',   'activity_log',  entry, ''),
+};
+
+// ── State ─────────────────────────────────────────────────
+let cards = [], photographers = [], activityLog = [];
+let currentView = 'oversigt', currentFilter = 'alle';
+
+// ── Sync status ───────────────────────────────────────────
+function setSyncing(v) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-status');
+  if (v) { dot.className='sync-dot syncing'; txt.textContent='synkroniserer…'; }
+  else    { dot.className='sync-dot';         txt.textContent='synkroniseret'; }
+}
+function setError() {
+  document.getElementById('sync-dot').className='sync-dot error';
+  document.getElementById('sync-status').textContent='forbindelsesfejl';
 }
 
-let cards, log, photographers;
-const stored = loadData();
-if (stored) {
-  cards = stored.cards;
-  log = stored.log;
-  photographers = stored.photographers || [];
-} else {
-  cards = [
-    { id: 'SD-001', status: 'ledig', photographer: '', project: '', since: '2026-06-01', cap: '128GB', notes: '' },
-    { id: 'SD-002', status: 'ude', photographer: 'Mads Krogsgaard', project: 'DR Kulturmagasinet', since: '2026-06-02', cap: '64GB', notes: '' },
-    { id: 'SD-003', status: 'ude', photographer: 'Sara Lindqvist', project: 'TV2 Sport Live', since: '2026-06-01', cap: '128GB', notes: '' },
-    { id: 'SD-004', status: 'ledig', photographer: '', project: '', since: '2026-05-30', cap: '256GB', notes: '' },
-    { id: 'SD-005', status: 'savnet', photographer: 'Jonas Petersen', project: 'Carlsberg Reklame', since: '2026-05-20', cap: '64GB', notes: 'Sidst set i studiet' },
-    { id: 'SD-006', status: 'ledig', photographer: '', project: '', since: '2026-06-03', cap: '128GB', notes: '' },
-    { id: 'SD-007', status: 'ledig', photographer: '', project: '', since: '2026-06-03', cap: '64GB', notes: '' },
-    { id: 'SD-008', status: 'ude', photographer: 'Mads Krogsgaard', project: 'DR Kulturmagasinet', since: '2026-06-02', cap: '256GB', notes: '' },
-  ];
-  log = [
-    { ts: '2026-06-03 09:14', id: 'SD-003', action: 'udlånt', photographer: 'Sara Lindqvist', project: 'TV2 Sport Live' },
-    { ts: '2026-06-02 14:32', id: 'SD-002', action: 'udlånt', photographer: 'Mads Krogsgaard', project: 'DR Kulturmagasinet' },
-    { ts: '2026-06-02 14:32', id: 'SD-008', action: 'udlånt', photographer: 'Mads Krogsgaard', project: 'DR Kulturmagasinet' },
-    { ts: '2026-06-01 11:00', id: 'SD-001', action: 'returneret', photographer: 'Sara Lindqvist', project: 'TV2 Sport' },
-    { ts: '2026-05-20 17:00', id: 'SD-005', action: 'savnet', photographer: 'Jonas Petersen', project: 'Carlsberg Reklame' },
-  ];
-  photographers = ['Mads Krogsgaard', 'Sara Lindqvist', 'Jonas Petersen', 'Line Sørensen', 'Rasmus Holm'];
-  saveData();
+// ── Load all data ─────────────────────────────────────────
+async function loadAll() {
+  try {
+    [cards, photographers, activityLog] = await Promise.all([
+      api.getCards(), api.getPhotographers(), api.getLog()
+    ]);
+    photographers = photographers.map(p => p.name);
+    document.getElementById('loading-screen').style.display = 'none';
+    renderAll();
+    // Poll every 15s for real-time-ish updates
+    setInterval(async () => {
+      cards = await api.getCards();
+      activityLog = await api.getLog();
+      renderAll();
+    }, 15000);
+  } catch(e) {
+    document.getElementById('loading-screen').innerHTML = `
+      <div style="text-align:center;color:var(--red);font-family:var(--mono);font-size:13px;">
+        Kunne ikke forbinde til databasen.<br><br>
+        <span style="color:var(--text3)">Tjek at tabellerne er oprettet i Supabase<br>og at Row Level Security er slået fra.</span>
+      </div>`;
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────
-function now() {
-  const d = new Date();
-  const pad = n => n.toString().padStart(2,'0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function nowTs() {
+  return new Date().toISOString();
 }
-
+function fmtTs(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const pad = n => n.toString().padStart(2,'0');
+  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 function daysSince(dateStr) {
+  if (!dateStr) return '';
   const d = new Date(dateStr);
-  const diff = Math.floor((Date.now() - d)/86400000);
-  if (diff === 0) return 'i dag';
-  if (diff === 1) return 'i går';
-  return diff + ' dage siden';
+  const diff = Math.floor((Date.now()-d)/86400000);
+  if (diff===0) return 'i dag'; if (diff===1) return 'i går';
+  return diff+' dage siden';
 }
 
 // ── Views ─────────────────────────────────────────────────
-let currentView = 'oversigt';
-let currentFilter = 'alle';
-
 const viewTitles = {
-  oversigt: ['Alle SD-kort', 'Klik et kort for at tjekke ud/ind'],
-  ledig: ['Ledige kort', 'Klar til udlevering'],
-  ude: ['Ude på optagelse', 'Aktuelt udlånte SD-kort'],
-  savnet: ['Savnede kort', 'Mangler at blive returneret'],
-  log: ['Aktivitetslog', 'Komplet historik over ud- og indleveringer'],
-  qr: ['QR-koder', 'Print og klistre på kortene'],
-  fotografer: ['Fotografer', 'Oversigt over aktive fotografer'],
+  oversigt:['Alle SD-kort','Klik et kort for at tjekke ud/ind'],
+  ledig:['Ledige kort','Klar til udlevering'],
+  ude:['Ude på optagelse','Aktuelt udlånte SD-kort'],
+  savnet:['Savnede kort','Mangler at blive returneret'],
+  log:['Aktivitetslog','Komplet historik over ud- og indleveringer'],
+  qr:['QR-koder','Print og klistre på kortene'],
+  fotografer:['Fotografer','Oversigt og administration'],
 };
 
 function showView(name, btn) {
   currentView = name;
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const [title, sub] = viewTitles[name] || [name, ''];
+  const [title,sub] = viewTitles[name]||[name,''];
   document.getElementById('view-title').textContent = title;
   document.getElementById('view-sub').textContent = sub;
-  if (name === 'qr') renderQR();
-  if (name === 'log') renderLog();
-  if (name === 'fotografer') renderPhotographers();
+  if (name==='qr') renderQR();
+  if (name==='log') renderLog();
+  if (name==='fotografer') renderPhotographers();
   if (['ledig','ude','savnet'].includes(name)) renderFilteredCards(name);
 }
 
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+function setFilter(f,btn) {
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderCards();
 }
 
-// ── Render cards ─────────────────────────────────────────
+// ── Card HTML ─────────────────────────────────────────────
 function cardHTML(c) {
-  const info = c.status === 'ude'
+  const info = c.status==='ude'
     ? `<span class="person">${c.photographer}</span><br><span class="project">${c.project}</span>`
-    : c.status === 'savnet'
-    ? `<span class="person">${c.photographer}</span><br><span style="color:var(--red);font-size:11px;">${c.notes || 'Ingen noter'}</span>`
+    : c.status==='savnet'
+    ? `<span class="person">${c.photographer||'Ukendt'}</span><br><span style="color:var(--red);font-size:11px;">${c.notes||'Ingen noter'}</span>`
     : '<span style="color:var(--green);">Klar til udlevering</span>';
-
   return `<div class="sd-card s-${c.status}" onclick="openCardModal('${c.id}')">
     <div class="card-top">
       <div class="card-id">${c.id}</div>
-      <span class="badge badge-${c.status}">${c.status === 'ledig' ? 'Ledig' : c.status === 'ude' ? 'Ude' : 'Savnet'}</span>
+      <span class="badge badge-${c.status}">${c.status==='ledig'?'Ledig':c.status==='ude'?'Ude':'Savnet'}</span>
     </div>
     <div class="card-cap">${c.cap}</div>
     <div class="card-info">${info}</div>
@@ -712,202 +409,148 @@ function cardHTML(c) {
 }
 
 function renderCards() {
-  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
-  let filtered = cards;
-  if (currentFilter !== 'alle') filtered = filtered.filter(c => c.status === currentFilter);
-  if (q) filtered = filtered.filter(c =>
-    c.id.toLowerCase().includes(q) ||
-    c.photographer.toLowerCase().includes(q) ||
-    c.project.toLowerCase().includes(q)
-  );
-  const grid = document.getElementById('card-grid');
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  let f=cards;
+  if (currentFilter!=='alle') f=f.filter(c=>c.status===currentFilter);
+  if (q) f=f.filter(c=>c.id.toLowerCase().includes(q)||c.photographer.toLowerCase().includes(q)||c.project.toLowerCase().includes(q));
+  const grid=document.getElementById('card-grid');
   if (!grid) return;
-  grid.innerHTML = filtered.length ? filtered.map(cardHTML).join('') : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3H8"/></svg><br>Ingen kort matcher søgningen</div>`;
+  grid.innerHTML=f.length?f.map(cardHTML).join(''):`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3H8"/></svg><br>Ingen kort matcher søgningen</div>`;
 }
 
 function renderFilteredCards(status) {
-  const filtered = cards.filter(c => c.status === status);
-  const grid = document.getElementById('card-grid-'+status);
+  const f=cards.filter(c=>c.status===status);
+  const grid=document.getElementById('card-grid-'+status);
   if (!grid) return;
-  grid.innerHTML = filtered.length ? filtered.map(cardHTML).join('') : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg><br>Ingen ${status === 'ledig' ? 'ledige' : status === 'ude' ? 'udlånte' : 'savnede'} kort</div>`;
+  grid.innerHTML=f.length?f.map(cardHTML).join(''):`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg><br>Ingen ${status==='ledig'?'ledige':status==='ude'?'udlånte':'savnede'} kort</div>`;
 }
 
 function renderStats() {
-  const total = cards.length;
-  const ledig = cards.filter(c => c.status === 'ledig').length;
-  const ude = cards.filter(c => c.status === 'ude').length;
-  const savnet = cards.filter(c => c.status === 'savnet').length;
-  document.getElementById('s-total').textContent = total;
-  document.getElementById('s-ledig').textContent = ledig;
-  document.getElementById('s-ude').textContent = ude;
-  document.getElementById('s-savnet').textContent = savnet;
-  document.getElementById('badge-all').textContent = total;
-  document.getElementById('badge-ledig').textContent = ledig;
-  document.getElementById('badge-ude').textContent = ude;
-  document.getElementById('badge-savnet').textContent = savnet;
+  const total=cards.length, ledig=cards.filter(c=>c.status==='ledig').length, ude=cards.filter(c=>c.status==='ude').length, savnet=cards.filter(c=>c.status==='savnet').length;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-ledig').textContent=ledig;
+  document.getElementById('s-ude').textContent=ude;
+  document.getElementById('s-savnet').textContent=savnet;
+  document.getElementById('badge-all').textContent=total;
+  document.getElementById('badge-ledig').textContent=ledig;
+  document.getElementById('badge-ude').textContent=ude;
+  document.getElementById('badge-savnet').textContent=savnet;
 }
 
 // ── Log ───────────────────────────────────────────────────
 function renderLog() {
-  const body = document.getElementById('log-body');
+  const body=document.getElementById('log-body');
   if (!body) return;
-  if (!log.length) { body.innerHTML = `<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text3)">Ingen aktivitet endnu</td></tr>`; return; }
-  body.innerHTML = log.map(l => {
-    const actionColor = l.action === 'udlånt' ? 'var(--amber)' : l.action === 'returneret' ? 'var(--green)' : 'var(--red)';
-    return `<tr class="log-row">
-      <td class="log-time">${l.ts}</td>
-      <td><span class="log-card-id">${l.id}</span></td>
-      <td><span style="color:${actionColor};font-size:12px;font-family:var(--mono);">${l.action.toUpperCase()}</span></td>
-      <td class="log-who">${l.photographer || '—'}</td>
-      <td style="color:var(--text2)">${l.project || '—'}</td>
-    </tr>`;
+  if (!activityLog.length){body.innerHTML=`<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text3)">Ingen aktivitet endnu</td></tr>`;return;}
+  body.innerHTML=activityLog.map(l=>{
+    const col=l.action==='udlånt'?'var(--amber)':l.action==='returneret'?'var(--green)':'var(--red)';
+    return `<tr class="log-row"><td class="log-time">${fmtTs(l.ts)}</td><td><span class="log-card-id">${l.card_id}</span></td><td><span style="color:${col};font-size:12px;font-family:var(--mono);">${(l.action||'').toUpperCase()}</span></td><td class="log-who">${l.photographer||'—'}</td><td style="color:var(--text2)">${l.project||'—'}</td></tr>`;
   }).join('');
 }
 
 // ── QR ────────────────────────────────────────────────────
 function renderQR() {
-  const grid = document.getElementById('qr-grid');
+  const grid=document.getElementById('qr-grid');
   if (!grid) return;
-  grid.innerHTML = '';
-  cards.forEach(c => {
-    const wrap = document.createElement('div');
-    wrap.className = 'qr-item';
-    wrap.innerHTML = `<div id="qr-${c.id.replace('-','')}" style="display:flex;justify-content:center;"></div><div class="qr-item-id">${c.id}</div><div class="qr-item-cap">${c.cap}</div>`;
+  grid.innerHTML='';
+  cards.forEach(c=>{
+    const wrap=document.createElement('div');
+    wrap.className='qr-item';
+    const safeId=c.id.replace(/[^a-zA-Z0-9]/g,'');
+    wrap.innerHTML=`<div id="qr-${safeId}" style="display:flex;justify-content:center;"></div><div class="qr-item-id">${c.id}</div><div class="qr-item-cap">${c.cap}</div>`;
     grid.appendChild(wrap);
-    setTimeout(() => {
-      try {
-        new QRCode(document.getElementById('qr-'+c.id.replace('-','')), {
-          text: `SDKORT:${c.id}`,
-          width: 120, height: 120,
-          colorDark: '#1a1a1a',
-          colorLight: '#ffffff'
-        });
-      } catch(e) {}
-    }, 50);
+    setTimeout(()=>{
+      try{new QRCode(document.getElementById('qr-'+safeId),{text:`SDKORT:${c.id}`,width:120,height:120,colorDark:'#1a1a1a',colorLight:'#ffffff'});}catch(e){}
+    },50);
   });
 }
 
 // ── Photographers ─────────────────────────────────────────
 function renderPhotographers() {
-  const el = document.getElementById('photographer-list');
-  const mgmt = document.getElementById('photographer-mgmt-list');
+  const el=document.getElementById('photographer-list');
+  const mgmt=document.getElementById('photographer-mgmt-list');
   if (!el) return;
-
-  // Active loans panel
-  const activeCards = cards.filter(c => c.status === 'ude');
-  const byPerson = {};
-  activeCards.forEach(c => {
-    if (!byPerson[c.photographer]) byPerson[c.photographer] = [];
+  const byPerson={};
+  cards.filter(c=>c.status==='ude').forEach(c=>{
+    if (!byPerson[c.photographer]) byPerson[c.photographer]=[];
     byPerson[c.photographer].push(c);
   });
-
-  el.innerHTML = Object.keys(byPerson).length
-    ? Object.entries(byPerson).map(([name, cs]) => `
+  el.innerHTML=Object.keys(byPerson).length
+    ?Object.entries(byPerson).map(([name,cs])=>`
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <div style="font-weight:500;font-size:15px;">${name}</div>
           <span style="background:var(--amber-dim);color:var(--amber);font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:20px;">${cs.length} kort ude</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${cs.map(c => `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 14px;">
-            <div style="font-family:var(--mono);font-size:13px;font-weight:500;">${c.id}</div>
-            <div style="font-size:11px;color:var(--blue);margin-top:2px;">${c.project}</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;">${daysSince(c.since)}</div>
-          </div>`).join('')}
+          ${cs.map(c=>`<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 14px;"><div style="font-family:var(--mono);font-size:13px;font-weight:500;">${c.id}</div><div style="font-size:11px;color:var(--blue);margin-top:2px;">${c.project}</div><div style="font-size:10px;color:var(--text3);margin-top:2px;">${daysSince(c.since)}</div></div>`).join('')}
         </div>
       </div>`).join('')
-    : `<div class="empty" style="padding:40px 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="opacity:0.3;margin-bottom:10px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><br>Ingen fotografer har kort ude</div>`;
+    :`<div class="empty" style="padding:40px 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="opacity:0.3;margin-bottom:10px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><br>Ingen fotografer har kort ude</div>`;
 
-  // Management list
   if (!mgmt) return;
-  if (!photographers.length) {
-    mgmt.innerHTML = `<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0;">Ingen fotografer tilføjet endnu</div>`;
-    return;
-  }
-  mgmt.innerHTML = photographers.slice().sort().map(p => {
-    const hasCards = cards.some(c => c.photographer === p && c.status === 'ude');
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-      <div>
-        <div style="font-size:13px;">${p}</div>
-        ${hasCards ? `<div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:1px;">har kort ude</div>` : `<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px;">ingen kort ude</div>`}
-      </div>
-      <button onclick="removePhotographer('${p.replace(/'/g,"\\'")}', ${hasCards})" style="background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--text3);border-radius:var(--r);transition:all 0.1s;" onmouseover="this.style.color='var(--red)';this.style.background='var(--red-dim)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="Fjern fotograf">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-      </button>
-    </div>`;
-  }).join('');
+  mgmt.innerHTML=!photographers.length
+    ?`<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0;">Ingen fotografer tilføjet endnu</div>`
+    :photographers.slice().sort().map(p=>{
+      const hasCards=cards.some(c=>c.photographer===p&&c.status==='ude');
+      const ps=p.replace(/'/g,"\\'");
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div><div style="font-size:13px;">${p}</div>${hasCards?`<div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:1px;">har kort ude</div>`:`<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px;">ingen kort ude</div>`}</div>
+        <button onclick="removePhotographer('${ps}',${hasCards})" style="background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--text3);border-radius:var(--r);" onmouseover="this.style.color='var(--red)';this.style.background='var(--red-dim)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>`;
+    }).join('');
 }
 
-function addPhotographer() {
-  const input = document.getElementById('new-photo-input');
-  const name = input.value.trim();
+async function addPhotographer() {
+  const input=document.getElementById('new-photo-input');
+  const name=input.value.trim();
   if (!name) return;
-  if (photographers.includes(name)) { input.style.borderColor = 'var(--red)'; setTimeout(() => input.style.borderColor = '', 1000); return; }
+  if (photographers.includes(name)){input.style.borderColor='var(--red)';setTimeout(()=>input.style.borderColor='',1000);return;}
+  await api.addPhotographer(name);
   photographers.push(name);
-  photographers.sort();
-  saveData();
-  input.value = '';
+  input.value='';
   renderPhotographers();
 }
 
-function removePhotographer(name, hasCards) {
-  if (hasCards) {
-    if (!confirm(`${name} har kort ude. Fjern alligevel fra listen?`)) return;
-  }
-  photographers = photographers.filter(p => p !== name);
-  saveData();
+async function removePhotographer(name, hasCards) {
+  if (hasCards && !confirm(`${name} har kort ude. Fjern alligevel?`)) return;
+  await api.deletePhotographer(name);
+  photographers=photographers.filter(p=>p!==name);
   renderPhotographers();
 }
 
-// ── Card Modal ────────────────────────────────────────────
+// ── Card modal ────────────────────────────────────────────
 function openCardModal(id) {
-  const c = cards.find(x => x.id === id);
-  const photoOpts = ['', ...photographers].map(p => `<option value="${p}"${c.photographer===p?' selected':''}>${p || '— vælg fotograf —'}</option>`).join('');
-
-  document.getElementById('modal-area').innerHTML = `
+  const c=cards.find(x=>x.id===id);
+  const photoOpts=['', ...photographers].map(p=>`<option value="${p}"${c.photographer===p?' selected':''}>${p||'— vælg fotograf —'}</option>`).join('');
+  document.getElementById('modal-area').innerHTML=`
     <div class="modal-overlay" onclick="closeModal(event)">
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">
-          <div>
-            <div class="modal-title">${c.id} · ${c.cap}</div>
-            <div class="modal-id">Rediger status og udlån</div>
-          </div>
-          <button class="btn" onclick="closeModal()" style="padding:6px 10px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          <div><div class="modal-title">${c.id} · ${c.cap}</div><div class="modal-id">Rediger status og udlån</div></div>
+          <button class="btn" onclick="closeModal()" style="padding:6px 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
-
-        <div class="form-field">
-          <label class="form-label">Status</label>
+        <div class="form-field"><label class="form-label">Status</label>
           <select class="form-select" id="m-status">
             <option value="ledig"${c.status==='ledig'?' selected':''}>✓ Ledig — i huset</option>
             <option value="ude"${c.status==='ude'?' selected':''}>⏱ Ude på optagelse</option>
             <option value="savnet"${c.status==='savnet'?' selected':''}>⚠ Savnet</option>
           </select>
         </div>
-
-        <div class="form-field">
-          <label class="form-label">Fotograf</label>
-          <select class="form-select" id="m-photo">
-            ${photoOpts}
-          </select>
+        <div class="form-field"><label class="form-label">Fotograf</label>
+          <select class="form-select" id="m-photo">${photoOpts}</select>
         </div>
-
-        <div class="form-field">
-          <label class="form-label">Eller skriv nyt navn</label>
-          <input class="form-input" type="text" id="m-photo-new" placeholder="Nyt fotografnavn (tilføjes til listen)">
+        <div class="form-field"><label class="form-label">Eller skriv nyt navn</label>
+          <input class="form-input" type="text" id="m-photo-new" placeholder="Nyt fotografnavn">
         </div>
-
-        <div class="form-field">
-          <label class="form-label">Produktion / projekt</label>
-          <input class="form-input" type="text" id="m-project" value="${c.project}" placeholder="Produktionens navn">
+        <div class="form-field"><label class="form-label">Produktion / projekt</label>
+          <input class="form-input" type="text" id="m-project" value="${c.project||''}">
         </div>
-
-        <div class="form-field">
-          <label class="form-label">Noter</label>
-          <input class="form-input" type="text" id="m-notes" value="${c.notes}" placeholder="Eventuelle noter...">
+        <div class="form-field"><label class="form-label">Noter</label>
+          <input class="form-input" type="text" id="m-notes" value="${c.notes||''}">
         </div>
-
         <div class="modal-footer">
           <button class="btn btn-danger" onclick="deleteCard('${id}')">Slet kort</button>
           <button class="btn" onclick="closeModal()">Annuller</button>
@@ -917,62 +560,51 @@ function openCardModal(id) {
     </div>`;
 }
 
-function saveCard(id) {
-  const c = cards.find(x => x.id === id);
-  const newStatus = document.getElementById('m-status').value;
-  const newPhotoNew = document.getElementById('m-photo-new').value.trim();
-  const newPhoto = newPhotoNew || document.getElementById('m-photo').value;
-  const newProject = document.getElementById('m-project').value.trim();
-  const newNotes = document.getElementById('m-notes').value.trim();
-
+async function saveCard(id) {
+  const c=cards.find(x=>x.id===id);
+  const newStatus=document.getElementById('m-status').value;
+  const newPhotoNew=document.getElementById('m-photo-new').value.trim();
+  const newPhoto=newPhotoNew||document.getElementById('m-photo').value;
+  const newProject=document.getElementById('m-project').value.trim();
+  const newNotes=document.getElementById('m-notes').value.trim();
   if (newPhotoNew && !photographers.includes(newPhotoNew)) {
+    await api.addPhotographer(newPhotoNew);
     photographers.push(newPhotoNew);
   }
-
-  c.status = newStatus;
-  c.photographer = newPhoto;
-  c.project = newProject;
-  c.notes = newNotes;
-  c.since = new Date().toISOString().slice(0,10);
-
-  log.unshift({ ts: now(), id, action: newStatus === 'ude' ? 'udlånt' : newStatus === 'ledig' ? 'returneret' : 'savnet', photographer: newPhoto, project: newProject });
-  saveData();
+  const updated={...c, status:newStatus, photographer:newPhoto, project:newProject, notes:newNotes, since:new Date().toISOString().slice(0,10)};
+  await api.upsertCard(updated);
+  await api.addLog({card_id:id, action:newStatus==='ude'?'udlånt':newStatus==='ledig'?'returneret':'savnet', photographer:newPhoto, project:newProject});
+  cards=await api.getCards();
+  activityLog=await api.getLog();
   closeModal();
   renderAll();
 }
 
-function deleteCard(id) {
+async function deleteCard(id) {
   if (!confirm(`Slet ${id} permanent fra systemet?`)) return;
-  cards = cards.filter(c => c.id !== id);
-  log.unshift({ ts: now(), id, action: 'slettet', photographer: '', project: '' });
-  saveData();
+  await api.deleteCard(id);
+  await api.addLog({card_id:id, action:'slettet', photographer:'', project:''});
+  cards=cards.filter(c=>c.id!==id);
+  activityLog=await api.getLog();
   closeModal();
   renderAll();
 }
 
 // ── Add card ──────────────────────────────────────────────
 function openAddCard() {
-  document.getElementById('modal-area').innerHTML = `
+  document.getElementById('modal-area').innerHTML=`
     <div class="modal-overlay" onclick="closeModal(event)">
       <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-          <div class="modal-title">Tilføj nyt SD-kort</div>
-          <button class="btn" onclick="closeModal()" style="padding:6px 10px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+        <div class="modal-header"><div class="modal-title">Tilføj nyt SD-kort</div>
+          <button class="btn" onclick="closeModal()" style="padding:6px 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
-        <div class="form-field">
-          <label class="form-label">Kort-ID</label>
+        <div class="form-field"><label class="form-label">Kort-ID</label>
           <input class="form-input" type="text" id="a-id" placeholder="SD-009" oninput="this.value=this.value.toUpperCase()">
         </div>
-        <div class="form-field">
-          <label class="form-label">Kapacitet</label>
-          <select class="form-select" id="a-cap">
-            <option>32GB</option><option>64GB</option><option selected>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option>
-          </select>
+        <div class="form-field"><label class="form-label">Kapacitet</label>
+          <select class="form-select" id="a-cap"><option>32GB</option><option>64GB</option><option selected>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option></select>
         </div>
-        <div class="form-field">
-          <label class="form-label">Noter (valgfri)</label>
+        <div class="form-field"><label class="form-label">Noter</label>
           <input class="form-input" type="text" id="a-notes" placeholder="Mærke, model, serienummer...">
         </div>
         <div class="modal-footer">
@@ -983,33 +615,32 @@ function openAddCard() {
     </div>`;
 }
 
-function addCard() {
-  const id = document.getElementById('a-id').value.trim().toUpperCase();
-  const cap = document.getElementById('a-cap').value;
-  const notes = document.getElementById('a-notes').value.trim();
-  if (!id) { alert('Indtast et kort-ID'); return; }
-  if (cards.find(c => c.id === id)) { alert(`${id} findes allerede i systemet`); return; }
-  cards.push({ id, status: 'ledig', photographer: '', project: '', since: new Date().toISOString().slice(0,10), cap, notes });
-  log.unshift({ ts: now(), id, action: 'tilføjet', photographer: '', project: '' });
-  saveData();
+async function addCard() {
+  const id=document.getElementById('a-id').value.trim().toUpperCase();
+  const cap=document.getElementById('a-cap').value;
+  const notes=document.getElementById('a-notes').value.trim();
+  if (!id){alert('Indtast et kort-ID');return;}
+  if (cards.find(c=>c.id===id)){alert(`${id} findes allerede i systemet`);return;}
+  const card={id, status:'ledig', photographer:'', project:'', since:new Date().toISOString().slice(0,10), cap, notes};
+  await api.upsertCard(card);
+  await api.addLog({card_id:id, action:'tilføjet', photographer:'', project:''});
+  cards=await api.getCards();
+  activityLog=await api.getLog();
   closeModal();
   renderAll();
 }
 
-// ── QR Scan (manual input fallback) ───────────────────────
+// ── Scan ──────────────────────────────────────────────────
 function openScan() {
-  document.getElementById('modal-area').innerHTML = `
+  document.getElementById('modal-area').innerHTML=`
     <div class="modal-overlay" onclick="closeModal(event)">
       <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-          <div class="modal-title">Scan / Indtast kort-ID</div>
-        </div>
+        <div class="modal-header"><div class="modal-title">Scan / Indtast kort-ID</div></div>
         <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--r2);padding:20px;text-align:center;margin-bottom:20px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" width="40" height="40" style="margin-bottom:10px;"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
           <div style="font-size:12px;color:var(--text3);">Brug en QR-scanner eller tast ID manuelt</div>
         </div>
-        <div class="form-field">
-          <label class="form-label">Kort-ID</label>
+        <div class="form-field"><label class="form-label">Kort-ID</label>
           <input class="form-input" type="text" id="scan-id" placeholder="SD-001" oninput="this.value=this.value.toUpperCase()" autofocus>
         </div>
         <div class="modal-footer">
@@ -1018,37 +649,33 @@ function openScan() {
         </div>
       </div>
     </div>`;
-  setTimeout(() => document.getElementById('scan-id')?.focus(), 100);
+  setTimeout(()=>document.getElementById('scan-id')?.focus(),100);
 }
 
 function doScan() {
-  const id = document.getElementById('scan-id').value.trim().toUpperCase();
-  const c = cards.find(x => x.id === id);
-  if (!c) { alert(`Kort ${id} ikke fundet i systemet`); return; }
+  const id=document.getElementById('scan-id').value.trim().toUpperCase();
+  const c=cards.find(x=>x.id===id);
+  if (!c){alert(`Kort ${id} ikke fundet i systemet`);return;}
   closeModal();
-  setTimeout(() => openCardModal(id), 50);
+  setTimeout(()=>openCardModal(id),50);
 }
 
-// ── Close modal ───────────────────────────────────────────
 function closeModal(e) {
-  if (e && !e.target.classList.contains('modal-overlay')) return;
-  document.getElementById('modal-area').innerHTML = '';
+  if (e&&!e.target.classList.contains('modal-overlay')) return;
+  document.getElementById('modal-area').innerHTML='';
 }
 
-// ── Render all ────────────────────────────────────────────
 function renderAll() {
   renderStats();
   renderCards();
-  if (currentView === 'log') renderLog();
-  if (currentView === 'qr') renderQR();
-  if (currentView === 'fotografer') renderPhotographers();
+  if (currentView==='log') renderLog();
+  if (currentView==='qr') renderQR();
+  if (currentView==='fotografer') renderPhotographers();
   if (['ledig','ude','savnet'].includes(currentView)) renderFilteredCards(currentView);
 }
 
-// ── Init ──────────────────────────────────────────────────
-document.getElementById('footer-date').textContent = new Date().toLocaleDateString('da-DK', { day:'numeric', month:'long', year:'numeric' });
-renderAll();
+document.getElementById('footer-date').textContent=new Date().toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
+loadAll();
 </script>
-
 </body>
 </html>
