@@ -459,7 +459,7 @@ function renderScanUI(card) {
         'padding:13px;font-size:14px;cursor:pointer;">⚠️ Meld savnet</button>';
   } else {
     html +=
-      '<button data-action="udlånt" data-id="' + card.id + '" ' +
+      '<button data-action="udlaan" data-id="' + card.id + '" ' +
         'style="width:100%;background:#e8ff47;color:#000;border:none;border-radius:8px;' +
         'padding:16px;font-size:17px;font-weight:700;cursor:pointer;' +
         'letter-spacing:0.01em;">→ Registrér kort</button>';
@@ -477,7 +477,7 @@ async function doScan(kortId, action) {
   const project   = projectEl ? projectEl.value.trim() : '';
 
   // Validér produktionsnavn ved udlån
-  if (action === 'udlånt' && !project) {
+  if (action === 'udlaan' && !project) {
     if (projectEl) {
       projectEl.style.borderColor = '#f87171';
       projectEl.style.boxShadow   = '0 0 0 2px rgba(248,113,113,0.25)';
@@ -491,7 +491,7 @@ async function doScan(kortId, action) {
   }
 
   // Vis spinner på klikket knap, deaktivér de andre
-  const clickedBtn = document.querySelector('[data-action="' + action + '"][data-id="' + kortId + '"]');
+  const clickedBtn = document.querySelector('[data-id="' + kortId + '"]');
   const allBtns    = document.querySelectorAll('#scan-box button');
   allBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
   if (clickedBtn) {
@@ -499,7 +499,7 @@ async function doScan(kortId, action) {
     clickedBtn.textContent   = 'Gemmer…';
   }
 
-  const status = action === 'udlånt' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
+  const status = action === 'udlaan' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
   const cap    = document.getElementById('scan-box').dataset.cap || '128GB';
   const today  = new Date().toISOString().slice(0, 10);
 
@@ -518,11 +518,11 @@ async function doScan(kortId, action) {
     });
 
     // Succes-skærm
-    const color  = action === 'udlånt'    ? '#e8ff47'
+    const color  = action === 'udlaan'    ? '#e8ff47'
                  : action === 'returneret' ? '#4ade80'
                  :                           '#f87171';
     const icon   = action === 'savnet'    ? '⚠️' : '✓';
-    const msg    = action === 'udlånt'    ? 'Kort registreret!'
+    const msg    = action === 'udlaan'    ? 'Kort registreret!'
                  : action === 'returneret' ? 'Kort afleveret!'
                  :                           'Kort meldt savnet';
 
@@ -680,7 +680,7 @@ function renderLog() {
   if (!body) return;
   if (!activityLog.length){body.innerHTML=`<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text3)">Ingen aktivitet endnu</td></tr>`;return;}
   body.innerHTML=activityLog.map(l=>{
-    const col=l.action==='udlånt'?'var(--amber)':l.action==='returneret'?'var(--green)':'var(--red)';
+    const col=l.action==='udlaan'?'var(--amber)':l.action==='returneret'?'var(--green)':'var(--red)';
     return `<tr class="log-row"><td class="log-time">${fmtTs(l.ts)}</td><td><span class="log-card-id">${l.card_id}</span></td><td><span style="color:${col};font-size:12px;font-family:var(--mono);">${(l.action||'').toUpperCase()}</span></td><td class="log-who">${l.photographer||'—'}</td><td style="color:var(--text2)">${l.project||'—'}</td></tr>`;
   }).join('');
 }
@@ -816,7 +816,7 @@ async function saveCard(id) {
   }
   const updated={...c, status:newStatus, photographer:newPhoto, project:newProject, notes:newNotes, since:new Date().toISOString().slice(0,10)};
   await api.upsertCard(updated);
-  await api.addLog({card_id:id, action:newStatus==='ude'?'udlånt':newStatus==='ledig'?'returneret':'savnet', photographer:newPhoto, project:newProject});
+  await api.addLog({card_id:id, action:newStatus==='ude'?'udlaan':newStatus==='ledig'?'returneret':'savnet', photographer:newPhoto, project:newProject});
   cards=await api.getCards();
   activityLog=await api.getLog();
   closeModal();
