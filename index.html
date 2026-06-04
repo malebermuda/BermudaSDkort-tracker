@@ -6,131 +6,123 @@
 <title>SD-kort System</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-  :root {
-    --bg:#0f0f0f;--bg2:#171717;--bg3:#1f1f1f;--bg4:#262626;
-    --border:#2a2a2a;--border2:#333;
-    --text:#f0f0f0;--text2:#888;--text3:#555;
-    --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);--accent-dim2:rgba(232,255,71,0.05);
-    --green:#4ade80;--green-dim:rgba(74,222,128,0.1);
-    --amber:#fbbf24;--amber-dim:rgba(251,191,36,0.1);
-    --red:#f87171;--red-dim:rgba(248,113,113,0.1);
-    --blue:#60a5fa;--blue-dim:rgba(96,165,250,0.1);
-    --r:6px;--r2:10px;
-    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;display:flex;}
-  .sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:fixed;top:0;bottom:0;left:0;z-index:100;}
-  .logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;}
-  .logo-mark{display:flex;align-items:center;gap:8px;}
-  .logo-icon{width:30px;height:30px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;}
-  .logo-icon svg{width:18px;height:18px;}
-  .logo-name{font-size:14px;font-weight:600;letter-spacing:0.02em;}
-  .logo-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
-  .nav{flex:1;padding:8px 12px;}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.12s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
-  .nav-item:hover{background:var(--bg3);color:var(--text);}
-  .nav-item.active{background:var(--accent-dim);color:var(--accent);}
-  .nav-item svg{width:16px;height:16px;flex-shrink:0;}
-  .nav-badge{margin-left:auto;font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:20px;background:var(--bg4);color:var(--text2);}
-  .nav-item.active .nav-badge{background:var(--accent);color:#000;}
-  .sidebar-footer{padding:16px 20px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);font-family:var(--mono);}
-  .sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;}
-  .sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
-  .sync-dot.error{background:var(--red);}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-  .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
-  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-  .topbar-title{font-size:16px;font-weight:500;}
-  .topbar-sub{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
-  .topbar-actions{display:flex;gap:8px;}
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-family:var(--sans);cursor:pointer;transition:all 0.12s;border:1px solid var(--border2);background:var(--bg3);color:var(--text);}
-  .btn:hover{background:var(--bg4);border-color:#444;}
-  .btn svg{width:14px;height:14px;}
-  .btn-accent{background:var(--accent);color:#000;border-color:transparent;font-weight:500;}
-  .btn-accent:hover{background:#d4e840;}
-  .btn-danger{color:var(--red);border-color:var(--red-dim);}
-  .btn-danger:hover{background:var(--red-dim);}
-  .content{padding:32px;flex:1;}
-  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
-  .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;}
-  .stat-label{font-size:11px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
-  .stat-val{font-size:28px;font-weight:300;font-family:var(--mono);}
-  .stat-val.green{color:var(--green);}
-  .stat-val.amber{color:var(--amber);}
-  .stat-val.red{color:var(--red);}
-  .stat-val.blue{color:var(--blue);}
-  .stat-desc{font-size:11px;color:var(--text3);margin-top:4px;}
-  .filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
-  .filter-btn{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all 0.1s;}
-  .filter-btn:hover{border-color:#444;color:var(--text);}
-  .filter-btn.active{background:var(--accent);color:#000;border-color:transparent;font-weight:500;}
-  .search-input{margin-left:auto;padding:6px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--sans);outline:none;width:200px;}
-  .search-input:focus{border-color:var(--accent);}
-  .search-input::placeholder{color:var(--text3);}
-  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
-  .sd-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;}
-  .sd-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border);transition:background 0.15s;}
-  .sd-card.s-ledig::before{background:var(--green);}
-  .sd-card.s-ude::before{background:var(--amber);}
-  .sd-card.s-savnet::before{background:var(--red);}
-  .sd-card:hover{border-color:#3a3a3a;background:var(--bg3);}
-  .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
-  .card-id{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:0.05em;}
-  .badge{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:20px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;}
-  .badge-ledig{background:var(--green-dim);color:var(--green);}
-  .badge-ude{background:var(--amber-dim);color:var(--amber);}
-  .badge-savnet{background:var(--red-dim);color:var(--red);}
-  .card-cap{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:10px;}
-  .card-info{font-size:12px;color:var(--text2);line-height:1.6;}
-  .card-info .person{color:var(--text);font-weight:500;}
-  .card-info .project{color:var(--blue);}
-  .card-date{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-  .log-table{width:100%;border-collapse:collapse;}
-  .log-table th{text-align:left;font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:0 16px 12px;border-bottom:1px solid var(--border);}
-  .log-row{border-bottom:1px solid var(--border);transition:background 0.1s;}
-  .log-row:hover{background:var(--bg3);}
-  .log-row td{padding:12px 16px;font-size:13px;}
-  .log-time{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
-  .log-card-id{font-family:var(--mono);font-weight:500;}
-  .log-who{color:var(--text2);}
-  .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
-  .qr-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;text-align:center;}
-  .qr-item canvas,.qr-item img{border-radius:4px;}
-  .qr-item-id{font-family:var(--mono);font-size:14px;font-weight:500;margin-bottom:4px;margin-top:12px;}
-  .qr-item-cap{font-size:11px;color:var(--text3);font-family:var(--mono);}
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
-  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:28px;width:420px;max-width:94vw;}
-  .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-  .modal-title{font-size:16px;font-weight:500;}
-  .modal-id{font-family:var(--mono);font-size:12px;color:var(--text3);}
-  .form-field{margin-bottom:16px;}
-  .form-label{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);display:block;margin-bottom:6px;}
-  .form-input,.form-select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--sans);padding:9px 12px;outline:none;transition:border-color 0.12s;appearance:none;}
-  .form-input:focus,.form-select:focus{border-color:var(--accent);}
-  .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
-  .view{display:none;}
-  .view.active{display:block;}
-  .empty{text-align:center;padding:64px;color:var(--text3);font-size:13px;}
-  .empty svg{width:40px;height:40px;margin-bottom:12px;opacity:0.3;}
-  .status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;}
-  .dot-ledig{background:var(--green);}
-  .dot-ude{background:var(--amber);}
-  .dot-savnet{background:var(--red);}
-  select option{background:#222;}
-  .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
-  .loading-spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .loading-text{font-size:13px;color:var(--text3);font-family:var(--mono);}
-  @media print{.sidebar,.topbar,.filter-bar,.stats-grid,.topbar-actions{display:none!important;}.main{margin-left:0;}.content{padding:0;}.qr-grid{grid-template-columns:repeat(4,1fr);}.qr-item{border:1px solid #ccc;background:white;color:black;}.qr-item-id,.qr-item-cap{color:black;}}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root {
+  --bg:#0f0f0f;--bg2:#171717;--bg3:#1f1f1f;--bg4:#262626;
+  --border:#2a2a2a;--border2:#333;
+  --text:#f0f0f0;--text2:#888;--text3:#555;
+  --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);
+  --green:#4ade80;--green-dim:rgba(74,222,128,0.1);
+  --amber:#fbbf24;--amber-dim:rgba(251,191,36,0.1);
+  --red:#f87171;--red-dim:rgba(248,113,113,0.1);
+  --blue:#60a5fa;
+  --r:6px;--r2:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;display:flex;}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:fixed;top:0;bottom:0;left:0;z-index:100;}
+.logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.logo-mark{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;}
+.logo-name{font-size:14px;font-weight:600;}
+.logo-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.nav{flex:1;padding:8px 12px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.12s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.nav-badge{margin-left:auto;font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:20px;background:var(--bg4);color:var(--text2);}
+.nav-item.active .nav-badge{background:var(--accent);color:#000;}
+.sidebar-footer{padding:16px 20px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);font-family:var(--mono);}
+.sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;}
+.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+.sync-dot.error{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:16px;font-weight:500;}
+.topbar-sub{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.topbar-actions{display:flex;gap:8px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;font-family:var(--sans);cursor:pointer;transition:all 0.12s;border:1px solid var(--border2);background:var(--bg3);color:var(--text);}
+.btn:hover{background:var(--bg4);}
+.btn svg{width:14px;height:14px;}
+.btn-accent{background:var(--accent);color:#000;border-color:transparent;font-weight:500;}
+.btn-accent:hover{background:#d4e840;}
+.btn-danger{color:var(--red);border-color:var(--red-dim);}
+.btn-danger:hover{background:var(--red-dim);}
+.content{padding:32px;flex:1;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;}
+.stat-label{font-size:11px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:300;font-family:var(--mono);}
+.stat-val.green{color:var(--green);}
+.stat-val.amber{color:var(--amber);}
+.stat-val.red{color:var(--red);}
+.stat-val.blue{color:var(--blue);}
+.stat-desc{font-size:11px;color:var(--text3);margin-top:4px;}
+.filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all 0.1s;}
+.filter-btn:hover{color:var(--text);}
+.filter-btn.active{background:var(--accent);color:#000;border-color:transparent;font-weight:500;}
+.search-input{margin-left:auto;padding:6px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--sans);outline:none;width:200px;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--text3);}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.sd-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;}
+.sd-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sd-card.s-ledig::before{background:var(--green);}
+.sd-card.s-ude::before{background:var(--amber);}
+.sd-card.s-savnet::before{background:var(--red);}
+.sd-card:hover{border-color:#3a3a3a;background:var(--bg3);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.card-id{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:0.05em;}
+.badge{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:20px;font-weight:500;text-transform:uppercase;}
+.badge-ledig{background:var(--green-dim);color:var(--green);}
+.badge-ude{background:var(--amber-dim);color:var(--amber);}
+.badge-savnet{background:var(--red-dim);color:var(--red);}
+.card-cap{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:10px;}
+.card-info{font-size:12px;color:var(--text2);line-height:1.6;}
+.card-info .person{color:var(--text);font-weight:500;}
+.card-info .project{color:var(--blue);}
+.card-date{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.log-table{width:100%;border-collapse:collapse;}
+.log-table th{text-align:left;font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:0 16px 12px;border-bottom:1px solid var(--border);}
+.log-row{border-bottom:1px solid var(--border);transition:background 0.1s;}
+.log-row:hover{background:var(--bg3);}
+.log-row td{padding:12px 16px;font-size:13px;}
+.log-time{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
+.log-card-id{font-family:var(--mono);font-weight:500;}
+.qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+.qr-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;text-align:center;}
+.qr-item-id{font-family:var(--mono);font-size:14px;font-weight:500;margin-bottom:4px;margin-top:12px;}
+.qr-item-cap{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:28px;width:420px;max-width:94vw;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.modal-title{font-size:16px;font-weight:500;}
+.modal-id{font-family:var(--mono);font-size:12px;color:var(--text3);}
+.form-field{margin-bottom:16px;}
+.form-label{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);display:block;margin-bottom:6px;}
+.form-input,.form-select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:13px;font-family:var(--sans);padding:9px 12px;outline:none;transition:border-color 0.12s;appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+.view{display:none;}
+.view.active{display:block;}
+.empty{text-align:center;padding:64px;color:var(--text3);font-size:13px;}
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
+.loading-spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+.loading-text{font-size:13px;color:var(--text3);font-family:var(--mono);}
+select option{background:#222;}
+@media print{.sidebar,.topbar,.filter-bar,.stats-grid,.topbar-actions{display:none!important;}.main{margin-left:0;}.content{padding:0;}.qr-grid{grid-template-columns:repeat(4,1fr);}.qr-item{border:1px solid #ccc;background:white;color:black;}.qr-item-id,.qr-item-cap{color:black;}}
 </style>
 </head>
 <body>
 
 <div class="loading-screen" id="loading-screen">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Forbinder til database…</div>
+  <div class="loading-text" id="loading-text">Forbinder til database…</div>
 </div>
 
 <aside class="sidebar">
@@ -139,10 +131,7 @@
       <div class="logo-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
       </div>
-      <div>
-        <div class="logo-name">SD Tracker</div>
-        <div class="logo-sub">live · delt</div>
-      </div>
+      <div><div class="logo-name">SD Tracker</div><div class="logo-sub">live · delt</div></div>
     </div>
   </div>
   <nav class="nav">
@@ -194,11 +183,10 @@
       </button>
       <button class="btn btn-accent" onclick="openAddCard()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Tilføj kort
+        Tilf&oslash;j kort
       </button>
     </div>
   </div>
-
   <div class="content">
     <div class="view active" id="view-oversigt">
       <div class="stats-grid">
@@ -209,9 +197,9 @@
       </div>
       <div class="filter-bar">
         <button class="filter-btn active" onclick="setFilter('alle',this)">Alle</button>
-        <button class="filter-btn" onclick="setFilter('ledig',this)"><span class="status-dot dot-ledig"></span>Ledige</button>
-        <button class="filter-btn" onclick="setFilter('ude',this)"><span class="status-dot dot-ude"></span>Ude</button>
-        <button class="filter-btn" onclick="setFilter('savnet',this)"><span class="status-dot dot-savnet"></span>Savnede</button>
+        <button class="filter-btn" onclick="setFilter('ledig',this)">Ledige</button>
+        <button class="filter-btn" onclick="setFilter('ude',this)">Ude</button>
+        <button class="filter-btn" onclick="setFilter('savnet',this)">Savnede</button>
         <input class="search-input" type="text" placeholder="Søg kort-ID eller fotograf…" id="search-input" oninput="renderCards()">
       </div>
       <div class="card-grid" id="card-grid"></div>
@@ -244,10 +232,7 @@
           <div style="font-size:13px;font-weight:500;margin-bottom:16px;">Administrer fotografer</div>
           <div style="display:flex;gap:8px;margin-bottom:16px;">
             <input class="form-input" type="text" id="new-photo-input" placeholder="Fuldt navn…" style="flex:1;" onkeydown="if(event.key==='Enter')addPhotographer()">
-            <button class="btn btn-accent" onclick="addPhotographer()" style="white-space:nowrap;padding:8px 14px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Tilføj
-            </button>
+            <button class="btn btn-accent" onclick="addPhotographer()" style="white-space:nowrap;padding:8px 14px;">+ Tilføj</button>
           </div>
           <div id="photographer-mgmt-list"></div>
         </div>
@@ -259,343 +244,110 @@
 <div id="modal-area"></div>
 
 <script>
-// ── Supabase ──────────────────────────────────────────────
-const SUPABASE_URL = 'https://aeyfwjptisufgghtzdpn.supabase.co'.replace('ф','');
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleWZ3anB0aXN1ZmdnaHR6ZHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODU4NDYsImV4cCI6MjA5NjA2MTg0Nn0.CZoswGagx3BF-ynuInKoA8KqdFd6R2ItKhuL7QMbwjg';
+// ── Config ────────────────────────────────────────────────
+var SB_URL = 'https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFleWZ3anB0aXN1ZmdnaHR6ZHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODU4NDYsImV4cCI6MjA5NjA2MTg0Nn0.CZoswGagx3BF-ynuInKoA8KqdFd6R2ItKhuL7QMbwjg';
+var SITE_URL = 'https://malebermuda.github.io/BermudaSDkort-tracker/';
 
-const SUPABASE_URL_REAL = 'https://aeyfwjptisufgghtzdpn.supabase.co'.replace('ф','');
-
-async function sb(method, table, body, query='', isUpsert=false) {
-  setSyncing(true);
-  try {
-    const headers = {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Content-Type': 'application/json',
-    };
-    if (method === 'POST') {
-      headers['Prefer'] = isUpsert
-        ? 'return=representation,resolution=merge-duplicates'
-        : 'return=representation';
-    }
-    const res = await fetch(`https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/${table}${query}`, {
-      method, headers,
-      body: body ? JSON.stringify(body) : undefined
-    });
-    const text = await res.text();
-    setSyncing(false);
-    if (!res.ok) {
-      let msg = text;
-      try { msg = JSON.parse(text).message || text; } catch(e) {}
-      showError(`Databasefejl på ${table}: ${msg}`);
-      throw new Error(msg);
-    }
-    return text ? JSON.parse(text) : [];
-  } catch(e) {
-    setError();
-    throw e;
-  }
+// ── Supabase fetch wrapper ────────────────────────────────
+function sbFetch(path, method, body, extra) {
+  var headers = {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json'
+  };
+  if (extra) Object.assign(headers, extra);
+  return fetch(SB_URL + path, {
+    method: method || 'GET',
+    headers: headers,
+    body: body ? JSON.stringify(body) : undefined
+  });
 }
-
-function showError(msg) {
-  // Remove existing error banner if any
-  document.getElementById('err-banner')?.remove();
-  const banner = document.createElement('div');
-  banner.id = 'err-banner';
-  banner.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#7f1d1d;color:#fca5a5;font-family:var(--mono);font-size:12px;padding:12px 16px;border-radius:8px;max-width:400px;z-index:9999;border:1px solid #991b1b;';
-  banner.innerHTML = `⚠ ${msg} <span onclick="this.parentNode.remove()" style="margin-left:12px;cursor:pointer;opacity:0.7;">✕</span>`;
-  document.body.appendChild(banner);
-  setTimeout(() => banner.remove(), 8000);
-}
-
-const api = {
-  getCards:         ()       => sb('GET',    'cards',         null,       '?order=id'),
-  upsertCard:       (card)   => sb('POST',   'cards',         card,       '?on_conflict=id',   true),
-  deleteCard:       (id)     => sb('DELETE', 'cards',         null,       `?id=eq.${id}`),
-  getPhotographers: ()       => sb('GET',    'photographers', null,       '?order=name'),
-  addPhotographer:  (name)   => sb('POST',   'photographers', {name},     '?on_conflict=name', true),
-  deletePhotographer:(name)  => sb('DELETE', 'photographers', null,       `?name=eq.${encodeURIComponent(name)}`),
-  getLog:           ()       => sb('GET',    'activity_log',  null,       '?order=ts.desc&limit=200'),
-  addLog:           (entry)  => sb('POST',   'activity_log',  entry,      ''),
-};
 
 // ── State ─────────────────────────────────────────────────
-let cards = [], photographers = [], activityLog = [];
-let currentView = 'oversigt', currentFilter = 'alle';
+var cards = [], photographers = [], activityLog = [];
+var currentView = 'oversigt', currentFilter = 'alle';
 
-// ── Sync status ───────────────────────────────────────────
-function setSyncing(v) {
-  const dot = document.getElementById('sync-dot');
-  const txt = document.getElementById('sync-status');
+// ── Sync indicator ────────────────────────────────────────
+function setSyncing(on) {
+  var dot = document.getElementById('sync-dot');
+  var txt = document.getElementById('sync-status');
   if (!dot || !txt) return;
-  if (v) { dot.className='sync-dot syncing'; txt.textContent='synkroniserer…'; }
-  else    { dot.className='sync-dot';         txt.textContent='synkroniseret'; }
+  dot.className = 'sync-dot' + (on ? ' syncing' : '');
+  txt.textContent = on ? 'synkroniserer…' : 'synkroniseret';
 }
 function setError() {
-  const dot = document.getElementById('sync-dot');
-  const txt = document.getElementById('sync-status');
+  var dot = document.getElementById('sync-dot');
+  var txt = document.getElementById('sync-status');
   if (!dot || !txt) return;
-  dot.className='sync-dot error';
-  txt.textContent='forbindelsesfejl';
+  dot.className = 'sync-dot error';
+  txt.textContent = 'forbindelsesfejl';
 }
 
-
-// ── Scan landing (QR-kode åbnet på telefon) ──────────────
-const SUPABASE_BASE = 'https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1';
-
-function sbHeaders(extra) {
-  return Object.assign({
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
-    'Content-Type': 'application/json'
-  }, extra || {});
-}
-
-async function checkForScanParam() {
-  const params = new URLSearchParams(window.location.search);
-  const kortId = params.get('kort');
-  if (!kortId) return false;
-
-  // Overlay oven på appen — roder ikke med body.innerHTML
-  const overlay = document.createElement('div');
-  overlay.id = 'scan-overlay';
-  overlay.style.cssText = [
-    'position:fixed','inset:0','background:#0f0f0f','z-index:9999',
-    'display:flex','align-items:center','justify-content:center',
-    'padding:20px','box-sizing:border-box',
-    'font-family:system-ui,sans-serif','color:#f0f0f0'
-  ].join(';');
-  overlay.innerHTML =
-    '<div style="width:100%;max-width:400px;">' +
-      '<div style="text-align:center;margin-bottom:28px;">' +
-        '<div style="background:#e8ff47;width:44px;height:44px;border-radius:8px;' +
-          'display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" width="24" height="24">' +
-            '<rect x="3" y="7" width="18" height="14" rx="2"/>' +
-            '<path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/>' +
-          '</svg></div>' +
-        '<div style="font-size:20px;font-weight:600;margin-bottom:6px;">SD Tracker</div>' +
-        '<div style="font-size:13px;color:#666;">Henter ' + kortId + '…</div>' +
-      '</div>' +
-      '<div id="scan-box" style="background:#171717;border:1px solid #2a2a2a;border-radius:14px;padding:24px;">' +
-        '<div style="text-align:center;color:#555;padding:20px;">Forbinder…</div>' +
-      '</div>' +
-    '</div>';
-  document.body.appendChild(overlay);
-
-  // Lyt efter knapklik via delegation — undgår inline onclick problemer
-  overlay.addEventListener('click', function(e) {
-    const btn = e.target.closest('button[data-action]');
-    if (!btn) return;
-    const action = btn.dataset.action;
-    const id     = btn.dataset.id;
-    doScan(id, action);
-  });
-
-  try {
-    const r = await fetch(
-      SUPABASE_BASE + '/cards?id=eq.' + encodeURIComponent(kortId),
-      { headers: sbHeaders() }
-    );
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const arr = await r.json();
-    if (!arr.length) {
-      document.getElementById('scan-box').innerHTML =
-        '<div style="text-align:center;color:#f87171;padding:20px;">' +
-        'Kort <strong>' + kortId + '</strong> findes ikke.</div>';
-      return true;
-    }
-    renderScanUI(arr[0]);
-  } catch(e) {
-    document.getElementById('scan-box').innerHTML =
-      '<div style="text-align:center;color:#f87171;padding:16px;">' +
-      'Kunne ikke forbinde.<br><span style="font-size:11px;color:#555;">' + e.message + '</span></div>';
-  }
-  return true;
-}
-
-function renderScanUI(card) {
-  const isUde    = card.status === 'ude';
-  const isSavnet = card.status === 'savnet';
-  const statusColor = isUde ? '#fbbf24' : isSavnet ? '#f87171' : '#4ade80';
-  const statusLabel = isUde ? 'Ude på optagelse' : isSavnet ? 'Savnet' : 'Ledig';
-
-  // Gem cap på box-elementet til brug i doScan
-  const box = document.getElementById('scan-box');
-  box.dataset.cap = card.cap;
-
-  let html =
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-      '<div style="font-family:monospace;font-size:24px;font-weight:700;">' + card.id + '</div>' +
-      '<span style="background:' + statusColor + '22;color:' + statusColor + ';' +
-        'font-size:11px;font-family:monospace;padding:3px 10px;border-radius:20px;">' + statusLabel + '</span>' +
-    '</div>' +
-    '<div style="font-size:12px;color:#555;font-family:monospace;margin-bottom:20px;">' + card.cap + '</div>';
-
-  if (isUde && card.project) {
-    html +=
-      '<div style="font-size:13px;color:#60a5fa;margin-bottom:16px;">' +
-      'Aktuel produktion: <strong>' + card.project + '</strong></div>';
-  }
-
-  html +=
-    '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;' +
-      'letter-spacing:0.06em;color:#666;display:block;margin-bottom:8px;">Produktion</label>' +
-    '<input id="scan-project" type="text" value="' + (card.project || '') + '" ' +
-      'style="width:100%;box-sizing:border-box;background:#111;border:1px solid #333;' +
-      'border-radius:8px;color:#f0f0f0;font-size:16px;padding:13px 12px;outline:none;' +
-      'margin-bottom:20px;" placeholder="Hvilken produktion?">';
-
-  // Knapper bruger data-attributter — ingen inline JS
-  if (isUde || isSavnet) {
-    html +=
-      '<button data-action="returneret" data-id="' + card.id + '" ' +
-        'style="width:100%;background:#4ade80;color:#000;border:none;border-radius:8px;' +
-        'padding:16px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;' +
-        'letter-spacing:0.01em;">✓ Aflevér kort</button>' +
-      '<button data-action="savnet" data-id="' + card.id + '" ' +
-        'style="width:100%;background:transparent;color:#f87171;' +
-        'border:1px solid rgba(248,113,113,0.3);border-radius:8px;' +
-        'padding:13px;font-size:14px;cursor:pointer;">⚠️ Meld savnet</button>';
-  } else {
-    html +=
-      '<button data-action="udlaan" data-id="' + card.id + '" ' +
-        'style="width:100%;background:#e8ff47;color:#000;border:none;border-radius:8px;' +
-        'padding:16px;font-size:17px;font-weight:700;cursor:pointer;' +
-        'letter-spacing:0.01em;">→ Registrér kort</button>';
-  }
-
-  box.innerHTML = html;
-
-  // Fokus på input hvis feltet er tomt
-  const inp = document.getElementById('scan-project');
-  if (inp && !card.project) setTimeout(() => inp.focus(), 150);
-}
-
-async function doScan(kortId, action) {
-  const projectEl = document.getElementById('scan-project');
-  const project   = projectEl ? projectEl.value.trim() : '';
-
-  // Validér produktionsnavn ved udlån
-  if (action === 'udlaan' && !project) {
-    if (projectEl) {
-      projectEl.style.borderColor = '#f87171';
-      projectEl.style.boxShadow   = '0 0 0 2px rgba(248,113,113,0.25)';
-      projectEl.focus();
-      setTimeout(() => {
-        projectEl.style.borderColor  = '#333';
-        projectEl.style.boxShadow    = 'none';
-      }, 2500);
-    }
-    return;
-  }
-
-  // Vis spinner på klikket knap, deaktivér de andre
-  const clickedBtn = document.querySelector('[data-id="' + kortId + '"]');
-  const allBtns    = document.querySelectorAll('#scan-box button');
-  allBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
-  if (clickedBtn) {
-    clickedBtn.style.opacity = '1';
-    clickedBtn.textContent   = 'Gemmer…';
-  }
-
-  const status = action === 'udlaan' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
-  const cap    = document.getElementById('scan-box').dataset.cap || '128GB';
-  const today  = new Date().toISOString().slice(0, 10);
-
-  try {
-    const r1 = await fetch(SUPABASE_BASE + '/cards?on_conflict=id', {
-      method: 'POST',
-      headers: sbHeaders({ 'Prefer': 'return=representation,resolution=merge-duplicates' }),
-      body: JSON.stringify({ id: kortId, status, project, photographer: '', since: today, notes: '', cap })
-    });
-    if (!r1.ok) { const t = await r1.text(); throw new Error(t); }
-
-    await fetch(SUPABASE_BASE + '/activity_log', {
-      method: 'POST',
-      headers: sbHeaders({ 'Prefer': 'return=representation' }),
-      body: JSON.stringify({ card_id: kortId, action, photographer: '', project })
-    });
-
-    // Succes-skærm
-    const color  = action === 'udlaan'    ? '#e8ff47'
-                 : action === 'returneret' ? '#4ade80'
-                 :                           '#f87171';
-    const icon   = action === 'savnet'    ? '⚠️' : '✓';
-    const msg    = action === 'udlaan'    ? 'Kort registreret!'
-                 : action === 'returneret' ? 'Kort afleveret!'
-                 :                           'Kort meldt savnet';
-
-    document.getElementById('scan-box').innerHTML =
-      '<div style="text-align:center;padding:32px 0;">' +
-        '<div style="font-size:64px;margin-bottom:16px;line-height:1;">' + icon + '</div>' +
-        '<div style="font-size:22px;font-weight:700;color:' + color + ';margin-bottom:10px;">' + msg + '</div>' +
-        '<div style="font-size:14px;color:#555;margin-bottom:6px;">' + kortId + '</div>' +
-        (project ? '<div style="font-size:13px;color:#888;">' + project + '</div>' : '') +
-      '</div>';
-
-  } catch(e) {
-    // Nulstil knapper og vis fejl
-    allBtns.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
-    // Genrender så knapper får korrekt tekst tilbage
-    try {
-      const r = await fetch(SUPABASE_BASE + '/cards?id=eq.' + encodeURIComponent(kortId), { headers: sbHeaders() });
-      const arr = await r.json();
-      if (arr.length) renderScanUI(arr[0]);
-    } catch(_) {}
-
-    const errDiv = document.createElement('div');
-    errDiv.style.cssText = 'background:#7f1d1d;color:#fca5a5;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:14px;';
-    errDiv.textContent   = 'Noget gik galt: ' + e.message;
-    document.getElementById('scan-box').prepend(errDiv);
-    setTimeout(() => errDiv.remove(), 6000);
-  }
+// ── Error banner ──────────────────────────────────────────
+function showError(msg) {
+  var old = document.getElementById('err-banner');
+  if (old) old.remove();
+  var b = document.createElement('div');
+  b.id = 'err-banner';
+  b.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#7f1d1d;color:#fca5a5;font-family:monospace;font-size:12px;padding:12px 16px;border-radius:8px;max-width:400px;z-index:9999;border:1px solid #991b1b;';
+  b.innerHTML = '&times; ' + msg + ' <span onclick="this.parentNode.remove()" style="margin-left:12px;cursor:pointer;">&#10005;</span>';
+  document.body.appendChild(b);
+  setTimeout(function() { if (b.parentNode) b.remove(); }, 8000);
 }
 
 // ── Load all data ─────────────────────────────────────────
 async function loadAll() {
+  setSyncing(true);
   try {
-    [cards, photographers, activityLog] = await Promise.all([
-      api.getCards(), api.getPhotographers(), api.getLog()
-    ]);
-    photographers = photographers.map(p => p.name);
+    var r1 = await sbFetch('/cards?order=id');
+    var r2 = await sbFetch('/photographers?order=name');
+    var r3 = await sbFetch('/activity_log?order=ts.desc&limit=200');
+    if (!r1.ok || !r2.ok || !r3.ok) throw new Error('HTTP fejl: ' + r1.status);
+    cards = await r1.json();
+    var ph = await r2.json();
+    activityLog = await r3.json();
+    photographers = ph.map(function(p) { return p.name; });
     document.getElementById('loading-screen').style.display = 'none';
+    setSyncing(false);
     renderAll();
-    // Poll every 2 minutes - langt lavere forbrug
-    setInterval(async () => {
-      cards = await api.getCards();
-      activityLog = await api.getLog();
-      renderAll();
+    setInterval(async function() {
+      var ra = await sbFetch('/cards?order=id');
+      var rb = await sbFetch('/activity_log?order=ts.desc&limit=200');
+      if (ra.ok && rb.ok) {
+        cards = await ra.json();
+        activityLog = await rb.json();
+        renderAll();
+      }
     }, 120000);
   } catch(e) {
-    document.getElementById('loading-screen').innerHTML =
-      '<div style="text-align:center;color:#f87171;font-size:13px;padding:20px;">' +
-      'Kunne ikke forbinde til databasen.<br><br>' +
-      '<span style="color:#555;font-size:11px;">' + e.message + '</span>' +
-      '</div>';
+    setError();
+    document.getElementById('loading-text').textContent = 'Fejl: ' + e.message;
   }
 }
 
 // ── Helpers ───────────────────────────────────────────────
 function nowTs() {
-  return new Date().toISOString();
+  var d = new Date();
+  var p = function(n) { return n.toString().padStart(2,'0'); };
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
 function fmtTs(iso) {
   if (!iso) return '—';
-  const d = new Date(iso);
-  const pad = n => n.toString().padStart(2,'0');
-  return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  var d = new Date(iso);
+  var p = function(n) { return n.toString().padStart(2,'0'); };
+  return p(d.getDate())+'-'+p(d.getMonth()+1)+'-'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
-function daysSince(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const diff = Math.floor((Date.now()-d)/86400000);
-  if (diff===0) return 'i dag'; if (diff===1) return 'i går';
-  return diff+' dage siden';
+function daysSince(s) {
+  if (!s) return '';
+  var diff = Math.floor((Date.now() - new Date(s)) / 86400000);
+  if (diff === 0) return 'i dag';
+  if (diff === 1) return 'i går';
+  return diff + ' dage siden';
 }
 
 // ── Views ─────────────────────────────────────────────────
-const viewTitles = {
+var viewTitles = {
   oversigt:['Alle SD-kort','Klik et kort for at tjekke ud/ind'],
   ledig:['Ledige kort','Klar til udlevering'],
   ude:['Ude på optagelse','Aktuelt udlånte SD-kort'],
@@ -607,318 +359,459 @@ const viewTitles = {
 
 function showView(name, btn) {
   currentView = name;
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById('view-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const [title,sub] = viewTitles[name]||[name,''];
-  document.getElementById('view-title').textContent = title;
-  document.getElementById('view-sub').textContent = sub;
-  if (name==='qr') renderQR();
-  if (name==='log') renderLog();
-  if (name==='fotografer') renderPhotographers();
-  if (['ledig','ude','savnet'].includes(name)) renderFilteredCards(name);
+  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var t = viewTitles[name] || [name, ''];
+  document.getElementById('view-title').textContent = t[0];
+  document.getElementById('view-sub').textContent = t[1];
+  if (name === 'qr') renderQR();
+  if (name === 'log') renderLog();
+  if (name === 'fotografer') renderPhotographers();
+  if (name === 'ledig' || name === 'ude' || name === 'savnet') renderFilteredCards(name);
 }
 
-function setFilter(f,btn) {
-  currentFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   renderCards();
 }
 
 // ── Card HTML ─────────────────────────────────────────────
 function cardHTML(c) {
-  const info = c.status==='ude'
-    ? `<span class="person">${c.photographer}</span><br><span class="project">${c.project}</span>`
-    : c.status==='savnet'
-    ? `<span class="person">${c.photographer||'Ukendt'}</span><br><span style="color:var(--red);font-size:11px;">${c.notes||'Ingen noter'}</span>`
+  var info = c.status === 'ude'
+    ? '<span class="person">'+c.photographer+'</span><br><span class="project">'+c.project+'</span>'
+    : c.status === 'savnet'
+    ? '<span class="person">'+(c.photographer||'Ukendt')+'</span><br><span style="color:var(--red);font-size:11px;">'+(c.notes||'Ingen noter')+'</span>'
     : '<span style="color:var(--green);">Klar til udlevering</span>';
-  return `<div class="sd-card s-${c.status}" onclick="openCardModal('${c.id}')">
-    <div class="card-top">
-      <div class="card-id">${c.id}</div>
-      <span class="badge badge-${c.status}">${c.status==='ledig'?'Ledig':c.status==='ude'?'Ude':'Savnet'}</span>
-    </div>
-    <div class="card-cap">${c.cap}</div>
-    <div class="card-info">${info}</div>
-    <div class="card-date">${daysSince(c.since)}</div>
-  </div>`;
+  var badge = c.status === 'ledig' ? 'Ledig' : c.status === 'ude' ? 'Ude' : 'Savnet';
+  return '<div class="sd-card s-'+c.status+'" onclick="openCardModal(\''+c.id+'\')">'
+    +'<div class="card-top"><div class="card-id">'+c.id+'</div>'
+    +'<span class="badge badge-'+c.status+'">'+badge+'</span></div>'
+    +'<div class="card-cap">'+c.cap+'</div>'
+    +'<div class="card-info">'+info+'</div>'
+    +'<div class="card-date">'+daysSince(c.since)+'</div>'
+    +'</div>';
 }
 
 function renderCards() {
-  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
-  let f=cards;
-  if (currentFilter!=='alle') f=f.filter(c=>c.status===currentFilter);
-  if (q) f=f.filter(c=>c.id.toLowerCase().includes(q)||c.photographer.toLowerCase().includes(q)||c.project.toLowerCase().includes(q));
-  const grid=document.getElementById('card-grid');
+  var q = (document.getElementById('search-input') ? document.getElementById('search-input').value : '').toLowerCase();
+  var f = cards;
+  if (currentFilter !== 'alle') f = f.filter(function(c) { return c.status === currentFilter; });
+  if (q) f = f.filter(function(c) { return c.id.toLowerCase().includes(q) || c.photographer.toLowerCase().includes(q) || c.project.toLowerCase().includes(q); });
+  var grid = document.getElementById('card-grid');
   if (!grid) return;
-  grid.innerHTML=f.length?f.map(cardHTML).join(''):`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3H8"/></svg><br>Ingen kort matcher søgningen</div>`;
+  grid.innerHTML = f.length ? f.map(cardHTML).join('') : '<div class="empty">Ingen kort matcher søgningen</div>';
 }
 
 function renderFilteredCards(status) {
-  const f=cards.filter(c=>c.status===status);
-  const grid=document.getElementById('card-grid-'+status);
+  var f = cards.filter(function(c) { return c.status === status; });
+  var grid = document.getElementById('card-grid-'+status);
   if (!grid) return;
-  grid.innerHTML=f.length?f.map(cardHTML).join(''):`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg><br>Ingen ${status==='ledig'?'ledige':status==='ude'?'udlånte':'savnede'} kort</div>`;
+  grid.innerHTML = f.length ? f.map(cardHTML).join('') : '<div class="empty">Ingen kort</div>';
 }
 
 function renderStats() {
-  const total=cards.length, ledig=cards.filter(c=>c.status==='ledig').length, ude=cards.filter(c=>c.status==='ude').length, savnet=cards.filter(c=>c.status==='savnet').length;
-  document.getElementById('s-total').textContent=total;
-  document.getElementById('s-ledig').textContent=ledig;
-  document.getElementById('s-ude').textContent=ude;
-  document.getElementById('s-savnet').textContent=savnet;
-  document.getElementById('badge-all').textContent=total;
-  document.getElementById('badge-ledig').textContent=ledig;
-  document.getElementById('badge-ude').textContent=ude;
-  document.getElementById('badge-savnet').textContent=savnet;
+  var total = cards.length;
+  var ledig = cards.filter(function(c) { return c.status === 'ledig'; }).length;
+  var ude = cards.filter(function(c) { return c.status === 'ude'; }).length;
+  var savnet = cards.filter(function(c) { return c.status === 'savnet'; }).length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-ledig').textContent = ledig;
+  document.getElementById('s-ude').textContent = ude;
+  document.getElementById('s-savnet').textContent = savnet;
+  document.getElementById('badge-all').textContent = total;
+  document.getElementById('badge-ledig').textContent = ledig;
+  document.getElementById('badge-ude').textContent = ude;
+  document.getElementById('badge-savnet').textContent = savnet;
 }
 
 // ── Log ───────────────────────────────────────────────────
 function renderLog() {
-  const body=document.getElementById('log-body');
+  var body = document.getElementById('log-body');
   if (!body) return;
-  if (!activityLog.length){body.innerHTML=`<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text3)">Ingen aktivitet endnu</td></tr>`;return;}
-  body.innerHTML=activityLog.map(l=>{
-    const col=l.action==='udlaan'?'var(--amber)':l.action==='returneret'?'var(--green)':'var(--red)';
-    return `<tr class="log-row"><td class="log-time">${fmtTs(l.ts)}</td><td><span class="log-card-id">${l.card_id}</span></td><td><span style="color:${col};font-size:12px;font-family:var(--mono);">${(l.action||'').toUpperCase()}</span></td><td class="log-who">${l.photographer||'—'}</td><td style="color:var(--text2)">${l.project||'—'}</td></tr>`;
+  if (!activityLog.length) { body.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--text3)">Ingen aktivitet endnu</td></tr>'; return; }
+  body.innerHTML = activityLog.map(function(l) {
+    var col = l.action === 'udlaan' ? 'var(--amber)' : l.action === 'returneret' ? 'var(--green)' : 'var(--red)';
+    var label = l.action === 'udlaan' ? 'UDLÅNT' : (l.action || '').toUpperCase();
+    return '<tr class="log-row"><td class="log-time">'+fmtTs(l.ts)+'</td>'
+      +'<td><span class="log-card-id">'+l.card_id+'</span></td>'
+      +'<td><span style="color:'+col+';font-size:12px;font-family:var(--mono);">'+label+'</span></td>'
+      +'<td style="color:var(--text2)">'+(l.photographer||'—')+'</td>'
+      +'<td style="color:var(--text2)">'+(l.project||'—')+'</td></tr>';
   }).join('');
 }
 
 // ── QR ────────────────────────────────────────────────────
-const SITE_URL = 'https://malebermuda.github.io/BermudaSDkort-tracker/';
-
 function renderQR() {
-  const grid=document.getElementById('qr-grid');
+  var grid = document.getElementById('qr-grid');
   if (!grid) return;
-  grid.innerHTML='';
-  cards.forEach(c=>{
-    const wrap=document.createElement('div');
-    wrap.className='qr-item';
-    const safeId=c.id.replace(/[^a-zA-Z0-9]/g,'');
-    const url=SITE_URL+'?kort='+encodeURIComponent(c.id);
-    wrap.innerHTML='<div id="qr-'+safeId+'" style="display:flex;justify-content:center;"></div>'
+  grid.innerHTML = '';
+  cards.forEach(function(c) {
+    var wrap = document.createElement('div');
+    wrap.className = 'qr-item';
+    var safeId = c.id.replace(/[^a-zA-Z0-9]/g, '');
+    var url = SITE_URL + '?kort=' + encodeURIComponent(c.id);
+    wrap.innerHTML = '<div id="qr-'+safeId+'" style="display:flex;justify-content:center;"></div>'
       +'<div class="qr-item-id">'+c.id+'</div>'
-      +'<div class="qr-item-cap">'+c.cap+'</div>'
-      +'<div style="font-size:9px;color:var(--text3);margin-top:4px;word-break:break-all;">'+url+'</div>';
+      +'<div class="qr-item-cap">'+c.cap+'</div>';
     grid.appendChild(wrap);
-    setTimeout(()=>{
-      try{new QRCode(document.getElementById('qr-'+safeId),{text:url,width:130,height:130,colorDark:'#1a1a1a',colorLight:'#ffffff'});}catch(e){}
-    },50);
+    setTimeout(function() {
+      try { new QRCode(document.getElementById('qr-'+safeId), {text:url, width:130, height:130, colorDark:'#1a1a1a', colorLight:'#ffffff'}); } catch(e) {}
+    }, 50);
   });
 }
 
-// ── Photographers ─────────────────────────────────────────
+// ── Fotografer ────────────────────────────────────────────
 function renderPhotographers() {
-  const el=document.getElementById('photographer-list');
-  const mgmt=document.getElementById('photographer-mgmt-list');
+  var el = document.getElementById('photographer-list');
+  var mgmt = document.getElementById('photographer-mgmt-list');
   if (!el) return;
-  const byPerson={};
-  cards.filter(c=>c.status==='ude').forEach(c=>{
-    if (!byPerson[c.photographer]) byPerson[c.photographer]=[];
+  var byPerson = {};
+  cards.filter(function(c) { return c.status === 'ude'; }).forEach(function(c) {
+    if (!byPerson[c.photographer]) byPerson[c.photographer] = [];
     byPerson[c.photographer].push(c);
   });
-  el.innerHTML=Object.keys(byPerson).length
-    ?Object.entries(byPerson).map(([name,cs])=>`
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:12px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-weight:500;font-size:15px;">${name}</div>
-          <span style="background:var(--amber-dim);color:var(--amber);font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:20px;">${cs.length} kort ude</span>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${cs.map(c=>`<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 14px;"><div style="font-family:var(--mono);font-size:13px;font-weight:500;">${c.id}</div><div style="font-size:11px;color:var(--blue);margin-top:2px;">${c.project}</div><div style="font-size:10px;color:var(--text3);margin-top:2px;">${daysSince(c.since)}</div></div>`).join('')}
-        </div>
-      </div>`).join('')
-    :`<div class="empty" style="padding:40px 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36" style="opacity:0.3;margin-bottom:10px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><br>Ingen fotografer har kort ude</div>`;
-
+  el.innerHTML = Object.keys(byPerson).length
+    ? Object.entries(byPerson).map(function(e) {
+        var name = e[0], cs = e[1];
+        return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:12px;">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
+          +'<div style="font-weight:500;">' + name + '</div>'
+          +'<span style="background:var(--amber-dim);color:var(--amber);font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:20px;">'+cs.length+' kort ude</span></div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+          +cs.map(function(c) { return '<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 14px;">'
+            +'<div style="font-family:var(--mono);font-size:13px;font-weight:500;">'+c.id+'</div>'
+            +'<div style="font-size:11px;color:var(--blue);margin-top:2px;">'+c.project+'</div>'
+            +'<div style="font-size:10px;color:var(--text3);margin-top:2px;">'+daysSince(c.since)+'</div></div>'; }).join('')
+          +'</div></div>';
+      }).join('')
+    : '<div class="empty" style="padding:40px 0;">Ingen fotografer har kort ude</div>';
   if (!mgmt) return;
-  mgmt.innerHTML=!photographers.length
-    ?`<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0;">Ingen fotografer tilføjet endnu</div>`
-    :photographers.slice().sort().map(p=>{
-      const hasCards=cards.some(c=>c.photographer===p&&c.status==='ude');
-      const ps=p.replace(/'/g,"\\'");
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-        <div><div style="font-size:13px;">${p}</div>${hasCards?`<div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:1px;">har kort ude</div>`:`<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px;">ingen kort ude</div>`}</div>
-        <button onclick="removePhotographer('${ps}',${hasCards})" style="background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--text3);border-radius:var(--r);" onmouseover="this.style.color='var(--red)';this.style.background='var(--red-dim)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        </button>
-      </div>`;
-    }).join('');
+  mgmt.innerHTML = !photographers.length
+    ? '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0;">Ingen fotografer tilføjet</div>'
+    : photographers.slice().sort().map(function(p) {
+        var hasCards = cards.some(function(c) { return c.photographer === p && c.status === 'ude'; });
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">'
+          +'<div><div style="font-size:13px;">'+p+'</div>'
+          +'<div style="font-size:10px;color:'+(hasCards?'var(--amber)':'var(--text3)')+';font-family:var(--mono);">'+(hasCards?'har kort ude':'ingen kort ude')+'</div></div>'
+          +'<button onclick="removePhotographer(\''+p.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\',' + hasCards + ')" '
+          +'style="background:none;border:none;cursor:pointer;padding:4px 8px;color:var(--text3);border-radius:var(--r);" '
+          +'onmouseover="this.style.color=\'var(--red)\';this.style.background=\'var(--red-dim)\'" '
+          +'onmouseout="this.style.color=\'var(--text3)\';this.style.background=\'none\'">&#128465;</button>'
+          +'</div>';
+      }).join('');
 }
 
 async function addPhotographer() {
-  const input=document.getElementById('new-photo-input');
-  const name=input.value.trim();
+  var input = document.getElementById('new-photo-input');
+  var name = input.value.trim();
   if (!name) return;
-  if (photographers.includes(name)){input.style.borderColor='var(--red)';setTimeout(()=>input.style.borderColor='',1000);return;}
-  await api.addPhotographer(name);
+  if (photographers.indexOf(name) !== -1) { input.style.borderColor = 'var(--red)'; setTimeout(function() { input.style.borderColor = ''; }, 1000); return; }
+  setSyncing(true);
+  var r = await sbFetch('/photographers?on_conflict=name', 'POST', {name: name}, {'Prefer': 'return=representation,resolution=merge-duplicates'});
+  setSyncing(false);
+  if (!r.ok) { showError('Kunne ikke tilføje fotograf'); return; }
   photographers.push(name);
-  input.value='';
+  input.value = '';
   renderPhotographers();
 }
 
 async function removePhotographer(name, hasCards) {
-  if (hasCards && !confirm(`${name} har kort ude. Fjern alligevel?`)) return;
-  await api.deletePhotographer(name);
-  photographers=photographers.filter(p=>p!==name);
+  if (hasCards && !confirm(name + ' har kort ude. Fjern alligevel?')) return;
+  setSyncing(true);
+  await sbFetch('/photographers?name=eq.' + encodeURIComponent(name), 'DELETE');
+  setSyncing(false);
+  photographers = photographers.filter(function(p) { return p !== name; });
   renderPhotographers();
 }
 
 // ── Card modal ────────────────────────────────────────────
 function openCardModal(id) {
-  const c=cards.find(x=>x.id===id);
-  const photoOpts=['', ...photographers].map(p=>`<option value="${p}"${c.photographer===p?' selected':''}>${p||'— vælg fotograf —'}</option>`).join('');
-  document.getElementById('modal-area').innerHTML=`
-    <div class="modal-overlay" onclick="closeModal(event)">
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-          <div><div class="modal-title">${c.id} · ${c.cap}</div><div class="modal-id">Rediger status og udlån</div></div>
-          <button class="btn" onclick="closeModal()" style="padding:6px 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        </div>
-        <div class="form-field"><label class="form-label">Status</label>
-          <select class="form-select" id="m-status">
-            <option value="ledig"${c.status==='ledig'?' selected':''}>✓ Ledig — i huset</option>
-            <option value="ude"${c.status==='ude'?' selected':''}>⏱ Ude på optagelse</option>
-            <option value="savnet"${c.status==='savnet'?' selected':''}>⚠ Savnet</option>
-          </select>
-        </div>
-        <div class="form-field"><label class="form-label">Fotograf</label>
-          <select class="form-select" id="m-photo">${photoOpts}</select>
-        </div>
-        <div class="form-field"><label class="form-label">Eller skriv nyt navn</label>
-          <input class="form-input" type="text" id="m-photo-new" placeholder="Nyt fotografnavn">
-        </div>
-        <div class="form-field"><label class="form-label">Produktion / projekt</label>
-          <input class="form-input" type="text" id="m-project" value="${c.project||''}">
-        </div>
-        <div class="form-field"><label class="form-label">Noter</label>
-          <input class="form-input" type="text" id="m-notes" value="${c.notes||''}">
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-danger" onclick="deleteCard('${id}')">Slet kort</button>
-          <button class="btn" onclick="closeModal()">Annuller</button>
-          <button class="btn btn-accent" onclick="saveCard('${id}')">Gem ændringer</button>
-        </div>
-      </div>
-    </div>`;
+  var c = cards.find(function(x) { return x.id === id; });
+  var photoOpts = [''].concat(photographers).map(function(p) {
+    return '<option value="'+p+'"'+(c.photographer===p?' selected':'')+'>'+( p || '— vælg fotograf —')+'</option>';
+  }).join('');
+  document.getElementById('modal-area').innerHTML =
+    '<div class="modal-overlay" onclick="closeModal(event)">'
+    +'<div class="modal" onclick="event.stopPropagation()">'
+    +'<div class="modal-header"><div><div class="modal-title">'+c.id+' · '+c.cap+'</div>'
+    +'<div class="modal-id">Rediger status og udlån</div></div>'
+    +'<button class="btn" onclick="closeModal()" style="padding:6px 10px;">&#10005;</button></div>'
+    +'<div class="form-field"><label class="form-label">Status</label>'
+    +'<select class="form-select" id="m-status">'
+    +'<option value="ledig"'+(c.status==='ledig'?' selected':'')+'>✓ Ledig</option>'
+    +'<option value="ude"'+(c.status==='ude'?' selected':'')+'>⏱ Ude på optagelse</option>'
+    +'<option value="savnet"'+(c.status==='savnet'?' selected':'')+'>⚠ Savnet</option>'
+    +'</select></div>'
+    +'<div class="form-field"><label class="form-label">Fotograf</label><select class="form-select" id="m-photo">'+photoOpts+'</select></div>'
+    +'<div class="form-field"><label class="form-label">Eller skriv nyt navn</label><input class="form-input" type="text" id="m-photo-new" placeholder="Nyt fotografnavn"></div>'
+    +'<div class="form-field"><label class="form-label">Produktion</label><input class="form-input" type="text" id="m-project" value="'+(c.project||'')+'"></div>'
+    +'<div class="form-field"><label class="form-label">Noter</label><input class="form-input" type="text" id="m-notes" value="'+(c.notes||'')+'"></div>'
+    +'<div class="modal-footer">'
+    +'<button class="btn btn-danger" onclick="deleteCard(\''+id+'\')">Slet kort</button>'
+    +'<button class="btn" onclick="closeModal()">Annuller</button>'
+    +'<button class="btn btn-accent" onclick="saveCard(\''+id+'\')">Gem ændringer</button>'
+    +'</div></div></div>';
 }
 
 async function saveCard(id) {
-  const c=cards.find(x=>x.id===id);
-  const newStatus=document.getElementById('m-status').value;
-  const newPhotoNew=document.getElementById('m-photo-new').value.trim();
-  const newPhoto=newPhotoNew||document.getElementById('m-photo').value;
-  const newProject=document.getElementById('m-project').value.trim();
-  const newNotes=document.getElementById('m-notes').value.trim();
-  if (newPhotoNew && !photographers.includes(newPhotoNew)) {
-    await api.addPhotographer(newPhotoNew);
+  var c = cards.find(function(x) { return x.id === id; });
+  var newStatus = document.getElementById('m-status').value;
+  var newPhotoNew = document.getElementById('m-photo-new').value.trim();
+  var newPhoto = newPhotoNew || document.getElementById('m-photo').value;
+  var newProject = document.getElementById('m-project').value.trim();
+  var newNotes = document.getElementById('m-notes').value.trim();
+  if (newPhotoNew && photographers.indexOf(newPhotoNew) === -1) {
+    await sbFetch('/photographers?on_conflict=name', 'POST', {name: newPhotoNew}, {'Prefer': 'return=representation,resolution=merge-duplicates'});
     photographers.push(newPhotoNew);
   }
-  const updated={...c, status:newStatus, photographer:newPhoto, project:newProject, notes:newNotes, since:new Date().toISOString().slice(0,10)};
-  await api.upsertCard(updated);
-  await api.addLog({card_id:id, action:newStatus==='ude'?'udlaan':newStatus==='ledig'?'returneret':'savnet', photographer:newPhoto, project:newProject});
-  cards=await api.getCards();
-  activityLog=await api.getLog();
+  var updated = {id:id, status:newStatus, photographer:newPhoto, project:newProject, notes:newNotes, since:new Date().toISOString().slice(0,10), cap:c.cap};
+  setSyncing(true);
+  var r = await sbFetch('/cards?on_conflict=id', 'POST', updated, {'Prefer': 'return=representation,resolution=merge-duplicates'});
+  if (!r.ok) { setSyncing(false); showError('Kunne ikke gemme kort'); return; }
+  await sbFetch('/activity_log', 'POST', {card_id:id, action:newStatus==='ude'?'udlaan':newStatus==='ledig'?'returneret':'savnet', photographer:newPhoto, project:newProject}, {'Prefer': 'return=representation'});
+  var ra = await sbFetch('/cards?order=id');
+  var rb = await sbFetch('/activity_log?order=ts.desc&limit=200');
+  cards = await ra.json();
+  activityLog = await rb.json();
+  setSyncing(false);
   closeModal();
   renderAll();
 }
 
 async function deleteCard(id) {
-  if (!confirm(`Slet ${id} permanent fra systemet?`)) return;
-  await api.deleteCard(id);
-  await api.addLog({card_id:id, action:'slettet', photographer:'', project:''});
-  cards=cards.filter(c=>c.id!==id);
-  activityLog=await api.getLog();
+  if (!confirm('Slet ' + id + ' permanent?')) return;
+  setSyncing(true);
+  await sbFetch('/cards?id=eq.' + id, 'DELETE');
+  await sbFetch('/activity_log', 'POST', {card_id:id, action:'slettet', photographer:'', project:''}, {'Prefer': 'return=representation'});
+  cards = cards.filter(function(c) { return c.id !== id; });
+  setSyncing(false);
   closeModal();
   renderAll();
 }
 
 // ── Add card ──────────────────────────────────────────────
 function openAddCard() {
-  document.getElementById('modal-area').innerHTML=`
-    <div class="modal-overlay" onclick="closeModal(event)">
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header"><div class="modal-title">Tilføj nyt SD-kort</div>
-          <button class="btn" onclick="closeModal()" style="padding:6px 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        </div>
-        <div class="form-field"><label class="form-label">Kort-ID</label>
-          <input class="form-input" type="text" id="a-id" placeholder="SD-009" oninput="this.value=this.value.toUpperCase()">
-        </div>
-        <div class="form-field"><label class="form-label">Kapacitet</label>
-          <select class="form-select" id="a-cap"><option>32GB</option><option>64GB</option><option selected>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option></select>
-        </div>
-        <div class="form-field"><label class="form-label">Noter</label>
-          <input class="form-input" type="text" id="a-notes" placeholder="Mærke, model, serienummer...">
-        </div>
-        <div class="modal-footer">
-          <button class="btn" onclick="closeModal()">Annuller</button>
-          <button class="btn btn-accent" onclick="addCard()">Tilføj kort</button>
-        </div>
-      </div>
-    </div>`;
+  document.getElementById('modal-area').innerHTML =
+    '<div class="modal-overlay" onclick="closeModal(event)">'
+    +'<div class="modal" onclick="event.stopPropagation()">'
+    +'<div class="modal-header"><div class="modal-title">Tilføj nyt SD-kort</div>'
+    +'<button class="btn" onclick="closeModal()" style="padding:6px 10px;">&#10005;</button></div>'
+    +'<div class="form-field"><label class="form-label">Kort-ID</label>'
+    +'<input class="form-input" type="text" id="a-id" placeholder="SD-009" oninput="this.value=this.value.toUpperCase()"></div>'
+    +'<div class="form-field"><label class="form-label">Kapacitet</label>'
+    +'<select class="form-select" id="a-cap"><option>32GB</option><option>64GB</option><option selected>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option></select></div>'
+    +'<div class="form-field"><label class="form-label">Noter</label>'
+    +'<input class="form-input" type="text" id="a-notes" placeholder="Mærke, serienummer..."></div>'
+    +'<div class="modal-footer"><button class="btn" onclick="closeModal()">Annuller</button>'
+    +'<button class="btn btn-accent" onclick="addCard()">Tilføj kort</button></div>'
+    +'</div></div>';
 }
 
 async function addCard() {
-  const id=document.getElementById('a-id').value.trim().toUpperCase();
-  const cap=document.getElementById('a-cap').value;
-  const notes=document.getElementById('a-notes').value.trim();
-  if (!id){alert('Indtast et kort-ID');return;}
-  if (cards.find(c=>c.id===id)){alert(`${id} findes allerede i systemet`);return;}
-  const card={id, status:'ledig', photographer:'', project:'', since:new Date().toISOString().slice(0,10), cap, notes};
-  await api.upsertCard(card);
-  await api.addLog({card_id:id, action:'tilføjet', photographer:'', project:''});
-  cards=await api.getCards();
-  activityLog=await api.getLog();
+  var id = document.getElementById('a-id').value.trim().toUpperCase();
+  var cap = document.getElementById('a-cap').value;
+  var notes = document.getElementById('a-notes').value.trim();
+  if (!id) { alert('Indtast et kort-ID'); return; }
+  if (cards.find(function(c) { return c.id === id; })) { alert(id + ' findes allerede'); return; }
+  var card = {id:id, status:'ledig', photographer:'', project:'', since:new Date().toISOString().slice(0,10), cap:cap, notes:notes};
+  setSyncing(true);
+  var r = await sbFetch('/cards?on_conflict=id', 'POST', card, {'Prefer': 'return=representation,resolution=merge-duplicates'});
+  if (!r.ok) { setSyncing(false); showError('Kunne ikke oprette kort'); return; }
+  await sbFetch('/activity_log', 'POST', {card_id:id, action:'tilfojet', photographer:'', project:''}, {'Prefer': 'return=representation'});
+  var ra = await sbFetch('/cards?order=id');
+  cards = await ra.json();
+  setSyncing(false);
   closeModal();
   renderAll();
 }
 
-// ── Scan ──────────────────────────────────────────────────
+// ── Scan (desktop) ────────────────────────────────────────
 function openScan() {
-  document.getElementById('modal-area').innerHTML=`
-    <div class="modal-overlay" onclick="closeModal(event)">
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header"><div class="modal-title">Scan / Indtast kort-ID</div></div>
-        <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--r2);padding:20px;text-align:center;margin-bottom:20px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" width="40" height="40" style="margin-bottom:10px;"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-          <div style="font-size:12px;color:var(--text3);">Brug en QR-scanner eller tast ID manuelt</div>
-        </div>
-        <div class="form-field"><label class="form-label">Kort-ID</label>
-          <input class="form-input" type="text" id="scan-id" placeholder="SD-001" oninput="this.value=this.value.toUpperCase()" autofocus>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" onclick="closeModal()">Annuller</button>
-          <button class="btn btn-accent" onclick="doScan()">Find kort ↗</button>
-        </div>
-      </div>
-    </div>`;
-  setTimeout(()=>document.getElementById('scan-id')?.focus(),100);
+  document.getElementById('modal-area').innerHTML =
+    '<div class="modal-overlay" onclick="closeModal(event)">'
+    +'<div class="modal" onclick="event.stopPropagation()">'
+    +'<div class="modal-header"><div class="modal-title">Scan / Indtast kort-ID</div>'
+    +'<button class="btn" onclick="closeModal()" style="padding:6px 10px;">&#10005;</button></div>'
+    +'<div class="form-field"><label class="form-label">Kort-ID</label>'
+    +'<input class="form-input" type="text" id="scan-id" placeholder="SD-001" oninput="this.value=this.value.toUpperCase()" autofocus></div>'
+    +'<div class="modal-footer"><button class="btn" onclick="closeModal()">Annuller</button>'
+    +'<button class="btn btn-accent" onclick="doDesktopScan()">Find kort</button></div>'
+    +'</div></div>';
+  setTimeout(function() { var el = document.getElementById('scan-id'); if (el) el.focus(); }, 100);
 }
 
-function doScan() {
-  const id=document.getElementById('scan-id').value.trim().toUpperCase();
-  const c=cards.find(x=>x.id===id);
-  if (!c){alert(`Kort ${id} ikke fundet i systemet`);return;}
+function doDesktopScan() {
+  var id = document.getElementById('scan-id').value.trim().toUpperCase();
+  var c = cards.find(function(x) { return x.id === id; });
+  if (!c) { alert('Kort ' + id + ' ikke fundet'); return; }
   closeModal();
-  setTimeout(()=>openCardModal(id),50);
+  setTimeout(function() { openCardModal(id); }, 50);
 }
 
 function closeModal(e) {
-  if (e&&!e.target.classList.contains('modal-overlay')) return;
-  document.getElementById('modal-area').innerHTML='';
+  if (e && !e.target.classList.contains('modal-overlay')) return;
+  document.getElementById('modal-area').innerHTML = '';
 }
 
+// ── Mobile scan landing ───────────────────────────────────
+function checkForScanParam() {
+  var params = new URLSearchParams(window.location.search);
+  var kortId = params.get('kort');
+  if (!kortId) return false;
+
+  // Byg overlay
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#0f0f0f;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;font-family:system-ui,sans-serif;color:#f0f0f0;';
+  overlay.innerHTML =
+    '<div style="width:100%;max-width:400px;">'
+    +'<div style="text-align:center;margin-bottom:28px;">'
+    +'<div style="background:#e8ff47;width:44px;height:44px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" width="24" height="24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg></div>'
+    +'<div style="font-size:20px;font-weight:600;margin-bottom:6px;">SD Tracker</div>'
+    +'<div style="font-size:13px;color:#666;">Henter ' + kortId + '&hellip;</div>'
+    +'</div>'
+    +'<div id="scan-box" style="background:#171717;border:1px solid #2a2a2a;border-radius:14px;padding:24px;">'
+    +'<div style="text-align:center;color:#555;padding:20px;">Forbinder&hellip;</div>'
+    +'</div></div>';
+  document.body.appendChild(overlay);
+
+  // Hent kortet
+  sbFetch('/cards?id=eq.' + encodeURIComponent(kortId))
+    .then(function(r) { return r.json(); })
+    .then(function(arr) {
+      if (!arr.length) {
+        document.getElementById('scan-box').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Kort <strong>' + kortId + '</strong> findes ikke.</div>';
+        return;
+      }
+      renderMobileScan(arr[0]);
+    })
+    .catch(function(e) {
+      document.getElementById('scan-box').innerHTML = '<div style="text-align:center;color:#f87171;padding:16px;">Kunne ikke forbinde.<br><small style="color:#555;">' + e.message + '</small></div>';
+    });
+
+  return true;
+}
+
+function renderMobileScan(card) {
+  var isUde = card.status === 'ude';
+  var isSavnet = card.status === 'savnet';
+  var statusColor = isUde ? '#fbbf24' : isSavnet ? '#f87171' : '#4ade80';
+  var statusLabel = isUde ? 'Ude på optagelse' : isSavnet ? 'Savnet' : 'Ledig';
+
+  var html =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+    +'<div style="font-family:monospace;font-size:24px;font-weight:700;">'+card.id+'</div>'
+    +'<span style="background:'+statusColor+'22;color:'+statusColor+';font-size:11px;font-family:monospace;padding:3px 10px;border-radius:20px;">'+statusLabel+'</span>'
+    +'</div>'
+    +'<div style="font-size:12px;color:#555;font-family:monospace;margin-bottom:20px;">'+card.cap+'</div>';
+
+  if (isUde && card.project) {
+    html += '<div style="font-size:13px;color:#60a5fa;margin-bottom:16px;">Aktuel produktion: <strong>'+card.project+'</strong></div>';
+  }
+
+  html +=
+    '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;color:#666;display:block;margin-bottom:8px;">Produktion</label>'
+    +'<input id="scan-project" type="text" value="'+(card.project||'')+'" '
+    +'style="width:100%;box-sizing:border-box;background:#111;border:1px solid #333;border-radius:8px;color:#f0f0f0;font-size:16px;padding:13px 12px;outline:none;margin-bottom:20px;" '
+    +'placeholder="Hvilken produktion?">';
+
+  if (isUde || isSavnet) {
+    html +=
+      '<button id="btn-aflever" style="width:100%;background:#4ade80;color:#000;border:none;border-radius:8px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;">&#10003; Aflev&eacute;r kort</button>'
+      +'<button id="btn-savnet" style="width:100%;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:13px;font-size:14px;cursor:pointer;">&#9888; Meld savnet</button>';
+  } else {
+    html +=
+      '<button id="btn-registrer" style="width:100%;background:#e8ff47;color:#000;border:none;border-radius:8px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;">&#8594; Registr&eacute;r kort</button>';
+  }
+
+  var box = document.getElementById('scan-box');
+  box.innerHTML = html;
+  box.dataset.cardId = card.id;
+  box.dataset.cap = card.cap;
+
+  // Direkte event listeners på knapperne — ingen inline onclick, ingen delegation
+  var btnA = document.getElementById('btn-aflever');
+  var btnS = document.getElementById('btn-savnet');
+  var btnR = document.getElementById('btn-registrer');
+  if (btnA) btnA.addEventListener('click', function() { submitMobileScan(card.id, 'returneret'); });
+  if (btnS) btnS.addEventListener('click', function() { submitMobileScan(card.id, 'savnet'); });
+  if (btnR) btnR.addEventListener('click', function() { submitMobileScan(card.id, 'udlaan'); });
+
+  // Fokus
+  var inp = document.getElementById('scan-project');
+  if (inp && !card.project) setTimeout(function() { inp.focus(); }, 150);
+}
+
+function submitMobileScan(kortId, action) {
+  var projectEl = document.getElementById('scan-project');
+  var project = projectEl ? projectEl.value.trim() : '';
+
+  if (action === 'udlaan' && !project) {
+    if (projectEl) {
+      projectEl.style.borderColor = '#f87171';
+      projectEl.style.boxShadow = '0 0 0 2px rgba(248,113,113,0.3)';
+      projectEl.focus();
+      setTimeout(function() { projectEl.style.borderColor = '#333'; projectEl.style.boxShadow = 'none'; }, 2500);
+    }
+    return;
+  }
+
+  // Vis feedback med det samme
+  var btns = document.querySelectorAll('#scan-box button');
+  btns.forEach(function(b) { b.disabled = true; b.style.opacity = '0.5'; });
+
+  var status = action === 'udlaan' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
+  var cap = document.getElementById('scan-box').dataset.cap || '128GB';
+  var today = new Date().toISOString().slice(0, 10);
+
+  var cardData = {id: kortId, status: status, project: project, photographer: '', since: today, notes: '', cap: cap};
+
+  sbFetch('/cards?on_conflict=id', 'POST', cardData, {'Prefer': 'return=representation,resolution=merge-duplicates'})
+    .then(function(r) {
+      if (!r.ok) return r.text().then(function(t) { throw new Error(t); });
+      return sbFetch('/activity_log', 'POST', {card_id: kortId, action: action, photographer: '', project: project}, {'Prefer': 'return=representation'});
+    })
+    .then(function() {
+      var color  = action === 'udlaan' ? '#e8ff47' : action === 'returneret' ? '#4ade80' : '#f87171';
+      var icon   = action === 'savnet' ? '&#9888;&#65039;' : '&#10003;';
+      var msg    = action === 'udlaan' ? 'Kort registreret!' : action === 'returneret' ? 'Kort afleveret!' : 'Kort meldt savnet';
+      document.getElementById('scan-box').innerHTML =
+        '<div style="text-align:center;padding:32px 0;">'
+        +'<div style="font-size:64px;margin-bottom:16px;line-height:1;">'+icon+'</div>'
+        +'<div style="font-size:22px;font-weight:700;color:'+color+';margin-bottom:10px;">'+msg+'</div>'
+        +'<div style="font-size:14px;color:#555;">'+kortId+(project ? ' &middot; '+project : '')+'</div>'
+        +'</div>';
+    })
+    .catch(function(e) {
+      btns.forEach(function(b) { b.disabled = false; b.style.opacity = '1'; });
+      var errDiv = document.createElement('div');
+      errDiv.style.cssText = 'background:#7f1d1d;color:#fca5a5;border-radius:8px;padding:12px;font-size:13px;margin-bottom:14px;';
+      errDiv.textContent = 'Fejl: ' + e.message;
+      document.getElementById('scan-box').prepend(errDiv);
+      setTimeout(function() { errDiv.remove(); }, 6000);
+    });
+}
+
+// ── Render all ────────────────────────────────────────────
 function renderAll() {
   renderStats();
   renderCards();
-  if (currentView==='log') renderLog();
-  if (currentView==='qr') renderQR();
-  if (currentView==='fotografer') renderPhotographers();
-  if (['ledig','ude','savnet'].includes(currentView)) renderFilteredCards(currentView);
+  if (currentView === 'log') renderLog();
+  if (currentView === 'qr') renderQR();
+  if (currentView === 'fotografer') renderPhotographers();
+  if (currentView === 'ledig' || currentView === 'ude' || currentView === 'savnet') renderFilteredCards(currentView);
 }
 
-document.getElementById('footer-date').textContent=new Date().toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
-checkForScanParam().then(isScan => { if (!isScan) loadAll(); });
+// ── Init ──────────────────────────────────────────────────
+document.getElementById('footer-date').textContent = new Date().toLocaleDateString('da-DK', {day:'numeric', month:'long', year:'numeric'});
+
+if (!checkForScanParam()) {
+  loadAll();
+}
 </script>
 </body>
 </html>
