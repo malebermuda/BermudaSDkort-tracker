@@ -335,6 +335,130 @@ function setError() {
   document.getElementById('sync-status').textContent='forbindelsesfejl';
 }
 
+
+// ── Scan landing (QR-kode åbnet på telefon) ──────────────
+async function checkForScanParam() {
+  const params = new URLSearchParams(window.location.search);
+  const kortId = params.get('kort');
+  if (!kortId) return false;
+
+  // Show mobile scan UI instead of full app
+  document.body.innerHTML = '';
+  document.body.style.cssText = 'background:#0f0f0f;color:#f0f0f0;font-family:DM Sans,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;';
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'width:100%;max-width:380px;';
+  wrap.innerHTML = '<div style="text-align:center;margin-bottom:32px;">'
+    + '<div style="background:#e8ff47;width:48px;height:48px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" width="26" height="26"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg></div>'
+    + '<div style="font-size:22px;font-weight:600;margin-bottom:4px;">SD-kort</div>'
+    + '<div style="font-family:monospace;font-size:14px;color:#888;">indlæser kort ' + kortId + '…</div>'
+    + '</div>'
+    + '<div id="scan-content" style="background:#171717;border:1px solid #2a2a2a;border-radius:12px;padding:24px;"></div>';
+  document.body.appendChild(wrap);
+
+  // Load data
+  try {
+    const [cardsRes, photosRes] = await Promise.all([
+      fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/cards?order=id', {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}}),
+      fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/photographers?order=name', {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}})
+    ]);
+    const allCards = await cardsRes.json();
+    const allPhotos = await photosRes.json();
+    const card = allCards.find(c => c.id === kortId);
+    const photoNames = allPhotos.map(p => p.name);
+
+    if (!card) {
+      document.getElementById('scan-content').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Kort <strong>' + kortId + '</strong> findes ikke i systemet.</div>';
+      return true;
+    }
+
+    renderScanUI(card, photoNames);
+  } catch(e) {
+    document.getElementById('scan-content').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Kunne ikke forbinde til databasen.<br><small style="color:#555;">' + e.message + '</small></div>';
+  }
+  return true;
+}
+
+function renderScanUI(card, photoNames) {
+  const isUde = card.status === 'ude';
+  const statusColor = isUde ? '#fbbf24' : '#4ade80';
+  const statusLabel = isUde ? 'Ude på optagelse' : card.status === 'savnet' ? 'Savnet' : 'Ledig';
+
+  const projectOptions = ['Skriv produktionsnavn…'];
+
+  let html = '<div style="margin-bottom:20px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
+    + '<div style="font-family:monospace;font-size:20px;font-weight:500;">' + card.id + '</div>'
+    + '<span style="background:' + statusColor + '22;color:' + statusColor + ';font-size:11px;font-family:monospace;padding:3px 10px;border-radius:20px;">' + statusLabel + '</span>'
+    + '</div>'
+    + '<div style="font-size:13px;color:#555;font-family:monospace;">' + card.cap + '</div>'
+    + (isUde && card.project ? '<div style="font-size:13px;color:#60a5fa;margin-top:4px;">Aktuel produktion: ' + card.project + '</div>' : '')
+    + '</div>';
+
+  if (isUde) {
+    // Returning card — just needs production confirmation
+    html += '<div style="margin-bottom:16px;">'
+      + '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;color:#555;display:block;margin-bottom:8px;">Produktion</label>'
+      + '<input id="scan-project" type="text" value="' + (card.project||'') + '" style="width:100%;background:#1f1f1f;border:1px solid #333;border-radius:6px;color:#f0f0f0;font-size:15px;padding:12px;outline:none;font-family:inherit;" placeholder="Produktionsnavn">'
+      + '</div>'
+      + '<button onclick="submitScan('' + card.id + '','returneret')" style="width:100%;background:#4ade80;color:#000;border:none;border-radius:8px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px;">✓ Aflevér kort</button>'
+      + '<button onclick="submitScan('' + card.id + '','savnet')" style="width:100%;background:transparent;color:#f87171;border:1px solid #f8717133;border-radius:8px;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;">⚠ Meld savnet</button>';
+  } else {
+    // Checking out card
+    html += '<div style="margin-bottom:16px;">'
+      + '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;color:#555;display:block;margin-bottom:8px;">Produktion</label>'
+      + '<input id="scan-project" type="text" style="width:100%;background:#1f1f1f;border:1px solid #333;border-radius:6px;color:#f0f0f0;font-size:15px;padding:12px;outline:none;font-family:inherit;" placeholder="Hvilken produktion?" autocomplete="off">'
+      + '</div>'
+      + '<button onclick="submitScan('' + card.id + '','udlånt')" style="width:100%;background:#e8ff47;color:#000;border:none;border-radius:8px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;">→ Hent kort</button>';
+  }
+
+  document.getElementById('scan-content').innerHTML = html;
+  setTimeout(() => document.getElementById('scan-project')?.focus(), 100);
+}
+
+async function submitScan(kortId, action) {
+  const projectEl = document.getElementById('scan-project');
+  const project = projectEl ? projectEl.value.trim() : '';
+
+  if (action === 'udlånt' && !project) {
+    projectEl.style.borderColor = '#f87171';
+    projectEl.placeholder = 'Skriv produktionsnavn!';
+    setTimeout(() => { projectEl.style.borderColor = '#333'; projectEl.placeholder = 'Hvilken produktion?'; }, 2000);
+    return;
+  }
+
+  const btn = document.querySelector('button[onclick*="submitScan"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Gemmer…'; }
+
+  const today = new Date().toISOString().slice(0,10);
+  const status = action === 'udlånt' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
+
+  try {
+    await fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/cards?on_conflict=id', {
+      method: 'POST',
+      headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation,resolution=merge-duplicates'},
+      body: JSON.stringify({id:kortId, status, project, photographer:'', since:today, notes:''})
+    });
+    await fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/activity_log', {
+      method: 'POST',
+      headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify({card_id:kortId, action, photographer:'', project})
+    });
+
+    // Show confirmation
+    const color = action==='udlånt' ? '#e8ff47' : action==='returneret' ? '#4ade80' : '#f87171';
+    const msg = action==='udlånt' ? 'Kort hentet!' : action==='returneret' ? 'Kort afleveret!' : 'Kort meldt savnet';
+    document.getElementById('scan-content').innerHTML = '<div style="text-align:center;padding:32px 0;">'
+      + '<div style="font-size:48px;margin-bottom:16px;">' + (action==='savnet'?'⚠':'✓') + '</div>'
+      + '<div style="font-size:20px;font-weight:600;color:' + color + ';margin-bottom:8px;">' + msg + '</div>'
+      + '<div style="font-size:14px;color:#555;">' + kortId + (project ? ' · ' + project : '') + '</div>'
+      + '</div>';
+  } catch(e) {
+    document.getElementById('scan-content').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Fejl: ' + e.message + '</div>';
+  }
+}
+
 // ── Load all data ─────────────────────────────────────────
 async function loadAll() {
   try {
@@ -344,12 +468,12 @@ async function loadAll() {
     photographers = photographers.map(p => p.name);
     document.getElementById('loading-screen').style.display = 'none';
     renderAll();
-    // Poll every 15s for real-time-ish updates
+    // Poll every 2 minutes - langt lavere forbrug
     setInterval(async () => {
       cards = await api.getCards();
       activityLog = await api.getLog();
       renderAll();
-    }, 15000);
+    }, 120000);
   } catch(e) {
     document.getElementById('loading-screen').innerHTML = `
       <div style="text-align:center;color:var(--red);font-family:var(--mono);font-size:13px;">
@@ -469,6 +593,8 @@ function renderLog() {
 }
 
 // ── QR ────────────────────────────────────────────────────
+const SITE_URL = 'https://malebermuda.github.io/BermudaSDkort-tracker/';
+
 function renderQR() {
   const grid=document.getElementById('qr-grid');
   if (!grid) return;
@@ -477,10 +603,14 @@ function renderQR() {
     const wrap=document.createElement('div');
     wrap.className='qr-item';
     const safeId=c.id.replace(/[^a-zA-Z0-9]/g,'');
-    wrap.innerHTML=`<div id="qr-${safeId}" style="display:flex;justify-content:center;"></div><div class="qr-item-id">${c.id}</div><div class="qr-item-cap">${c.cap}</div>`;
+    const url=SITE_URL+'?kort='+encodeURIComponent(c.id);
+    wrap.innerHTML='<div id="qr-'+safeId+'" style="display:flex;justify-content:center;"></div>'
+      +'<div class="qr-item-id">'+c.id+'</div>'
+      +'<div class="qr-item-cap">'+c.cap+'</div>'
+      +'<div style="font-size:9px;color:var(--text3);margin-top:4px;word-break:break-all;">'+url+'</div>';
     grid.appendChild(wrap);
     setTimeout(()=>{
-      try{new QRCode(document.getElementById('qr-'+safeId),{text:`SDKORT:${c.id}`,width:120,height:120,colorDark:'#1a1a1a',colorLight:'#ffffff'});}catch(e){}
+      try{new QRCode(document.getElementById('qr-'+safeId),{text:url,width:130,height:130,colorDark:'#1a1a1a',colorLight:'#ffffff'});}catch(e){}
     },50);
   });
 }
@@ -695,7 +825,7 @@ function renderAll() {
 }
 
 document.getElementById('footer-date').textContent=new Date().toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
-loadAll();
+checkForScanParam().then(isScan => { if (!isScan) loadAll(); });
 </script>
 </body>
 </html>
