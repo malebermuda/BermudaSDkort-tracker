@@ -737,6 +737,17 @@ function renderMobileScan(card) {
   var btnA = document.getElementById('btn-aflever');
   var btnS = document.getElementById('btn-savnet');
   var btnR = document.getElementById('btn-registrer');
+  
+  // DEBUG: vis hvilke knapper der blev fundet
+  var foundBtns = [];
+  if (btnA) foundBtns.push('aflever');
+  if (btnS) foundBtns.push('savnet');
+  if (btnR) foundBtns.push('registrer');
+  var dbg = document.createElement('div');
+  dbg.style.cssText = 'background:#1a1a3a;color:#60a5fa;border-radius:6px;padding:6px 10px;font-size:10px;margin-top:10px;font-family:monospace;';
+  dbg.textContent = 'Knapper fundet: ' + (foundBtns.length ? foundBtns.join(', ') : 'INGEN!');
+  document.getElementById('scan-box').appendChild(dbg);
+  
   if (btnA) btnA.addEventListener('click', function() { submitMobileScan(card.id, 'returneret'); });
   if (btnS) btnS.addEventListener('click', function() { submitMobileScan(card.id, 'savnet'); });
   if (btnR) btnR.addEventListener('click', function() { submitMobileScan(card.id, 'udlaan'); });
@@ -747,6 +758,13 @@ function renderMobileScan(card) {
 }
 
 function submitMobileScan(kortId, action) {
+  // DEBUG: vis at funktionen kørte
+  var debugDiv = document.createElement('div');
+  debugDiv.style.cssText = 'background:#1a3a1a;color:#4ade80;border-radius:6px;padding:8px 12px;font-size:12px;margin-bottom:10px;font-family:monospace;';
+  debugDiv.textContent = 'Klik registreret: ' + kortId + ' / ' + action;
+  var box = document.getElementById('scan-box');
+  if (box) box.prepend(debugDiv);
+
   var projectEl = document.getElementById('scan-project');
   var project = projectEl ? projectEl.value.trim() : '';
 
