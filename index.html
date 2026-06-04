@@ -337,125 +337,157 @@ function setError() {
 
 
 // ── Scan landing (QR-kode åbnet på telefon) ──────────────
+const SUPABASE_BASE = 'https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1';
+
+function sbHeaders() {
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json'
+  };
+}
+
 async function checkForScanParam() {
   const params = new URLSearchParams(window.location.search);
   const kortId = params.get('kort');
   if (!kortId) return false;
 
-  // Show mobile scan UI instead of full app
+  // Ryd siden og vis mobilvisning
   document.body.innerHTML = '';
-  document.body.style.cssText = 'background:#0f0f0f;color:#f0f0f0;font-family:DM Sans,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;';
+  document.body.style.cssText = 'margin:0;background:#0f0f0f;color:#f0f0f0;font-family:system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
 
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'width:100%;max-width:380px;';
-  wrap.innerHTML = '<div style="text-align:center;margin-bottom:32px;">'
-    + '<div style="background:#e8ff47;width:48px;height:48px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">'
-    + '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" width="26" height="26"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg></div>'
-    + '<div style="font-size:22px;font-weight:600;margin-bottom:4px;">SD-kort</div>'
-    + '<div style="font-family:monospace;font-size:14px;color:#888;">indlæser kort ' + kortId + '…</div>'
-    + '</div>'
-    + '<div id="scan-content" style="background:#171717;border:1px solid #2a2a2a;border-radius:12px;padding:24px;"></div>';
+  wrap.style.cssText = 'width:100%;max-width:400px;';
+  wrap.innerHTML =
+    '<div style="text-align:center;margin-bottom:28px;">' +
+      '<div style="background:#e8ff47;width:44px;height:44px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" width="24" height="24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>' +
+      '</div>' +
+      '<div style="font-size:20px;font-weight:600;margin-bottom:4px;">SD Tracker</div>' +
+      '<div style="font-size:13px;color:#666;">Henter kort ' + kortId + '\u2026</div>' +
+    '</div>' +
+    '<div id="scan-box" style="background:#171717;border:1px solid #2a2a2a;border-radius:12px;padding:24px;">' +
+      '<div style="text-align:center;color:#666;font-size:13px;">Forbinder\u2026</div>' +
+    '</div>';
   document.body.appendChild(wrap);
 
-  // Load data
   try {
-    const [cardsRes, photosRes] = await Promise.all([
-      fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/cards?order=id', {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}}),
-      fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/photographers?order=name', {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}})
+    const [cr, pr] = await Promise.all([
+      fetch(SUPABASE_BASE + '/cards?id=eq.' + encodeURIComponent(kortId), {headers: sbHeaders()}),
+      fetch(SUPABASE_BASE + '/photographers?order=name', {headers: sbHeaders()})
     ]);
-    const allCards = await cardsRes.json();
-    const allPhotos = await photosRes.json();
-    const card = allCards.find(c => c.id === kortId);
-    const photoNames = allPhotos.map(p => p.name);
+    const cardArr = await cr.json();
+    const photoArr = await pr.json();
+    const card = cardArr[0];
 
     if (!card) {
-      document.getElementById('scan-content').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Kort <strong>' + kortId + '</strong> findes ikke i systemet.</div>';
+      document.getElementById('scan-box').innerHTML =
+        '<div style="text-align:center;color:#f87171;padding:16px;">Kort <strong>' + kortId + '</strong> findes ikke i systemet.</div>';
       return true;
     }
-
-    renderScanUI(card, photoNames);
+    renderScanUI(card);
   } catch(e) {
-    document.getElementById('scan-content').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Kunne ikke forbinde til databasen.<br><small style="color:#555;">' + e.message + '</small></div>';
+    document.getElementById('scan-box').innerHTML =
+      '<div style="text-align:center;color:#f87171;padding:16px;">Kunne ikke forbinde.<br><span style="font-size:11px;color:#555;">' + e.message + '</span></div>';
   }
   return true;
 }
 
-function renderScanUI(card, photoNames) {
+function renderScanUI(card) {
   const isUde = card.status === 'ude';
-  const statusColor = isUde ? '#fbbf24' : '#4ade80';
+  const statusColor = isUde ? '#fbbf24' : card.status === 'savnet' ? '#f87171' : '#4ade80';
   const statusLabel = isUde ? 'Ude på optagelse' : card.status === 'savnet' ? 'Savnet' : 'Ledig';
 
-  const projectOptions = ['Skriv produktionsnavn…'];
+  const box = document.getElementById('scan-box');
 
-  let html = '<div style="margin-bottom:20px;">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
-    + '<div style="font-family:monospace;font-size:20px;font-weight:500;">' + card.id + '</div>'
-    + '<span style="background:' + statusColor + '22;color:' + statusColor + ';font-size:11px;font-family:monospace;padding:3px 10px;border-radius:20px;">' + statusLabel + '</span>'
-    + '</div>'
-    + '<div style="font-size:13px;color:#555;font-family:monospace;">' + card.cap + '</div>'
-    + (isUde && card.project ? '<div style="font-size:13px;color:#60a5fa;margin-top:4px;">Aktuel produktion: ' + card.project + '</div>' : '')
-    + '</div>';
+  let html =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
+      '<div style="font-family:monospace;font-size:22px;font-weight:600;">' + card.id + '</div>' +
+      '<span style="background:' + statusColor + '22;color:' + statusColor + ';font-size:11px;font-family:monospace;padding:3px 10px;border-radius:20px;">' + statusLabel + '</span>' +
+    '</div>' +
+    '<div style="font-size:12px;color:#555;font-family:monospace;margin-bottom:' + (isUde && card.project ? '6' : '20') + 'px;">' + card.cap + '</div>';
 
-  if (isUde) {
-    // Returning card — just needs production confirmation
-    html += '<div style="margin-bottom:16px;">'
-      + '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;color:#555;display:block;margin-bottom:8px;">Produktion</label>'
-      + '<input id="scan-project" type="text" value="' + (card.project||'') + '" style="width:100%;background:#1f1f1f;border:1px solid #333;border-radius:6px;color:#f0f0f0;font-size:15px;padding:12px;outline:none;font-family:inherit;" placeholder="Produktionsnavn">'
-      + '</div>'
-      + '<button onclick="submitScan('' + card.id + '','returneret')" style="width:100%;background:#4ade80;color:#000;border:none;border-radius:8px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px;">✓ Aflevér kort</button>'
-      + '<button onclick="submitScan('' + card.id + '','savnet')" style="width:100%;background:transparent;color:#f87171;border:1px solid #f8717133;border-radius:8px;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;">⚠ Meld savnet</button>';
-  } else {
-    // Checking out card
-    html += '<div style="margin-bottom:16px;">'
-      + '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;color:#555;display:block;margin-bottom:8px;">Produktion</label>'
-      + '<input id="scan-project" type="text" style="width:100%;background:#1f1f1f;border:1px solid #333;border-radius:6px;color:#f0f0f0;font-size:15px;padding:12px;outline:none;font-family:inherit;" placeholder="Hvilken produktion?" autocomplete="off">'
-      + '</div>'
-      + '<button onclick="submitScan('' + card.id + '','udlånt')" style="width:100%;background:#e8ff47;color:#000;border:none;border-radius:8px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;">→ Hent kort</button>';
+  if (isUde && card.project) {
+    html += '<div style="font-size:13px;color:#60a5fa;margin-bottom:20px;">Produktion: ' + card.project + '</div>';
   }
 
-  document.getElementById('scan-content').innerHTML = html;
-  setTimeout(() => document.getElementById('scan-project')?.focus(), 100);
+  // Produktionsfelt
+  html +=
+    '<div style="margin-bottom:16px;">' +
+      '<label style="font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;color:#666;display:block;margin-bottom:8px;">Produktion</label>' +
+      '<input id="scan-project" type="text" value="' + (card.project || '') + '" ' +
+        'style="width:100%;box-sizing:border-box;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#f0f0f0;font-size:16px;padding:13px 12px;outline:none;font-family:inherit;" ' +
+        'placeholder="Hvilken produktion?">' +
+    '</div>';
+
+  if (isUde) {
+    html +=
+      '<button id="btn-aflever" onclick="doScan('' + card.id + '','returneret')" ' +
+        'style="width:100%;background:#4ade80;color:#000;border:none;border-radius:8px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;">\u2713 Aflev\u00e9r kort</button>' +
+      '<button onclick="doScan('' + card.id + '','savnet')" ' +
+        'style="width:100%;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:12px;font-size:14px;cursor:pointer;">\u26a0 Meld savnet</button>';
+  } else {
+    html +=
+      '<button id="btn-hent" onclick="doScan('' + card.id + '','udl\u00e5nt')" ' +
+        'style="width:100%;background:#e8ff47;color:#000;border:none;border-radius:8px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;">\u2192 Hent kort</button>';
+  }
+
+  box.innerHTML = html;
+  // Store card for later
+  box._card = card;
+  setTimeout(() => {
+    const inp = document.getElementById('scan-project');
+    if (inp && !card.project) inp.focus();
+  }, 150);
 }
 
-async function submitScan(kortId, action) {
+async function doScan(kortId, action) {
   const projectEl = document.getElementById('scan-project');
-  const project = projectEl ? projectEl.value.trim() : '';
+  const project = (projectEl ? projectEl.value.trim() : '') || '';
 
-  if (action === 'udlånt' && !project) {
-    projectEl.style.borderColor = '#f87171';
-    projectEl.placeholder = 'Skriv produktionsnavn!';
-    setTimeout(() => { projectEl.style.borderColor = '#333'; projectEl.placeholder = 'Hvilken produktion?'; }, 2000);
+  if (action === 'udl\u00e5nt' && !project) {
+    if (projectEl) {
+      projectEl.style.borderColor = '#f87171';
+      projectEl.focus();
+      setTimeout(() => { projectEl.style.borderColor = '#333'; }, 2000);
+    }
     return;
   }
 
-  const btn = document.querySelector('button[onclick*="submitScan"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Gemmer…'; }
+  // Disable buttons
+  document.querySelectorAll('#scan-box button').forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
 
+  const status = action === 'udl\u00e5nt' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
   const today = new Date().toISOString().slice(0,10);
-  const status = action === 'udlånt' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
 
   try {
-    await fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/cards?on_conflict=id', {
+    const r1 = await fetch(SUPABASE_BASE + '/cards?on_conflict=id', {
       method: 'POST',
-      headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation,resolution=merge-duplicates'},
-      body: JSON.stringify({id:kortId, status, project, photographer:'', since:today, notes:''})
+      headers: Object.assign({}, sbHeaders(), {'Prefer': 'return=representation,resolution=merge-duplicates'}),
+      body: JSON.stringify({id: kortId, status, project, photographer: '', since: today, notes: '', cap: document.getElementById('scan-box')._card?.cap || '128GB'})
     });
-    await fetch('https://aeyfwjptisufgghtzdpn.supabase.co/rest/v1/activity_log', {
+    if (!r1.ok) { const t = await r1.text(); throw new Error(t); }
+
+    await fetch(SUPABASE_BASE + '/activity_log', {
       method: 'POST',
-      headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-      body: JSON.stringify({card_id:kortId, action, photographer:'', project})
+      headers: Object.assign({}, sbHeaders(), {'Prefer': 'return=representation'}),
+      body: JSON.stringify({card_id: kortId, action, photographer: '', project})
     });
 
-    // Show confirmation
-    const color = action==='udlånt' ? '#e8ff47' : action==='returneret' ? '#4ade80' : '#f87171';
-    const msg = action==='udlånt' ? 'Kort hentet!' : action==='returneret' ? 'Kort afleveret!' : 'Kort meldt savnet';
-    document.getElementById('scan-content').innerHTML = '<div style="text-align:center;padding:32px 0;">'
-      + '<div style="font-size:48px;margin-bottom:16px;">' + (action==='savnet'?'⚠':'✓') + '</div>'
-      + '<div style="font-size:20px;font-weight:600;color:' + color + ';margin-bottom:8px;">' + msg + '</div>'
-      + '<div style="font-size:14px;color:#555;">' + kortId + (project ? ' · ' + project : '') + '</div>'
-      + '</div>';
+    const color = action === 'udl\u00e5nt' ? '#e8ff47' : action === 'returneret' ? '#4ade80' : '#f87171';
+    const icon  = action === 'savnet' ? '\u26a0\ufe0f' : '\u2713';
+    const msg   = action === 'udl\u00e5nt' ? 'Kort hentet!' : action === 'returneret' ? 'Kort afleveret!' : 'Kort meldt savnet';
+
+    document.getElementById('scan-box').innerHTML =
+      '<div style="text-align:center;padding:24px 0;">' +
+        '<div style="font-size:52px;margin-bottom:14px;">' + icon + '</div>' +
+        '<div style="font-size:20px;font-weight:600;color:' + color + ';margin-bottom:8px;">' + msg + '</div>' +
+        '<div style="font-size:13px;color:#555;">' + kortId + (project ? ' \u00b7 ' + project : '') + '</div>' +
+      '</div>';
   } catch(e) {
-    document.getElementById('scan-content').innerHTML = '<div style="text-align:center;color:#f87171;padding:20px;">Fejl: ' + e.message + '</div>';
+    document.querySelectorAll('#scan-box button').forEach(b => { b.disabled = false; b.style.opacity = '1'; });
+    document.getElementById('scan-box').insertAdjacentHTML('afterbegin',
+      '<div style="background:#7f1d1d;color:#fca5a5;border-radius:6px;padding:10px 14px;font-size:12px;margin-bottom:12px;">Fejl: ' + e.message + '</div>');
   }
 }
 
