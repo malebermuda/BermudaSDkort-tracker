@@ -327,12 +327,16 @@ let currentView = 'oversigt', currentFilter = 'alle';
 function setSyncing(v) {
   const dot = document.getElementById('sync-dot');
   const txt = document.getElementById('sync-status');
+  if (!dot || !txt) return;
   if (v) { dot.className='sync-dot syncing'; txt.textContent='synkroniserer…'; }
   else    { dot.className='sync-dot';         txt.textContent='synkroniseret'; }
 }
 function setError() {
-  document.getElementById('sync-dot').className='sync-dot error';
-  document.getElementById('sync-status').textContent='forbindelsesfejl';
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-status');
+  if (!dot || !txt) return;
+  dot.className='sync-dot error';
+  txt.textContent='forbindelsesfejl';
 }
 
 
@@ -530,11 +534,11 @@ async function loadAll() {
       renderAll();
     }, 120000);
   } catch(e) {
-    document.getElementById('loading-screen').innerHTML = `
-      <div style="text-align:center;color:var(--red);font-family:var(--mono);font-size:13px;">
-        Kunne ikke forbinde til databasen.<br><br>
-        <span style="color:var(--text3)">Tjek at tabellerne er oprettet i Supabase<br>og at Row Level Security er slået fra.</span>
-      </div>`;
+    document.getElementById('loading-screen').innerHTML =
+      '<div style="text-align:center;color:#f87171;font-size:13px;padding:20px;">' +
+      'Kunne ikke forbinde til databasen.<br><br>' +
+      '<span style="color:#555;font-size:11px;">' + e.message + '</span>' +
+      '</div>';
   }
 }
 
