@@ -111,6 +111,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .view{display:none;}
 .view.active{display:block;}
 .empty{text-align:center;padding:64px;color:var(--text3);font-size:13px;}
+.prod-group{margin-bottom:28px;}
+.prod-group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);}
+.prod-group-name{font-size:15px;font-weight:500;}
+.prod-group-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.btn-returner-alle{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,0.25);border-radius:var(--r);padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:all 0.12s;}
+.btn-returner-alle:hover{background:var(--green);color:#000;}
+.btn-returner-alle:disabled{opacity:0.5;cursor:not-allowed;}
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px;}
 .loading-spinner{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
 .loading-text{font-size:13px;color:var(--text3);font-family:var(--mono);}
@@ -410,7 +417,83 @@ function renderFilteredCards(status) {
   var f = cards.filter(function(c) { return c.status === status; });
   var grid = document.getElementById('card-grid-'+status);
   if (!grid) return;
-  grid.innerHTML = f.length ? f.map(cardHTML).join('') : '<div class="empty">Ingen kort</div>';
+  if (!f.length) { grid.innerHTML = '<div class="empty">Ingen kort</div>'; return; }
+
+  // "Ude"-visning: gruppér efter produktion med "Returner alle"-knap
+  if (status === 'ude') {
+    var byProject = {};
+    f.forEach(function(c) {
+      var key = c.project || '(Ingen produktion)';
+      if (!byProject[key]) byProject[key] = [];
+      byProject[key].push(c);
+    });
+    var html = '';
+    Object.keys(byProject).sort().forEach(function(proj) {
+      var cs = byProject[proj];
+      var ids = cs.map(function(c) { return c.id; });
+      html += '<div class="prod-group">'
+        + '<div class="prod-group-header">'
+        +   '<div>'
+        +     '<div class="prod-group-name">' + proj + '</div>'
+        +     '<div class="prod-group-sub">' + cs.length + ' kort ude</div>'
+        +   '</div>'
+        +   '<button class="btn-returner-alle" data-ids="' + ids.join(',') + '" data-proj="' + proj.replace(/"/g, '&quot;') + '">'
+        +     '&#10003; Returner alle'
+        +   '</button>'
+        + '</div>'
+        + '<div class="card-grid" style="margin-top:14px;">'
+        + cs.map(cardHTML).join('')
+        + '</div>'
+        + '</div>';
+    });
+    grid.innerHTML = html;
+
+    // Bind returner-alle knapper
+    grid.querySelectorAll('.btn-returner-alle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var ids = btn.dataset.ids.split(',');
+        var proj = btn.dataset.proj;
+        returnerAlle(ids, proj, btn);
+      });
+    });
+    return;
+  }
+
+  grid.innerHTML = f.map(cardHTML).join('');
+}
+
+async function returnerAlle(ids, projekt, btn) {
+  if (!confirm('Returner ' + ids.length + ' kort fra "' + projekt + '" som ledige?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Returnerer…';
+  setSyncing(true);
+  var today = new Date().toISOString().slice(0, 10);
+  try {
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      var card = cards.find(function(c) { return c.id === id; });
+      await sbFetch('/cards?on_conflict=id', 'POST',
+        {id: id, status: 'ledig', photographer: '', project: '', since: today, notes: card ? card.notes : '', cap: card ? card.cap : '128GB'},
+        {'Prefer': 'return=representation,resolution=merge-duplicates'}
+      );
+      await sbFetch('/activity_log', 'POST',
+        {card_id: id, action: 'returneret', photographer: '', project: projekt},
+        {'Prefer': 'return=representation'}
+      );
+    }
+    // Genindlæs
+    var ra = await sbFetch('/cards?order=id');
+    var rb = await sbFetch('/activity_log?order=ts.desc&limit=200');
+    cards = await ra.json();
+    activityLog = await rb.json();
+    setSyncing(false);
+    renderAll();
+  } catch(e) {
+    setSyncing(false);
+    btn.disabled = false;
+    btn.textContent = '&#10003; Returner alle';
+    showError('Fejl ved returnering: ' + e.message);
+  }
 }
 
 function renderStats() {
