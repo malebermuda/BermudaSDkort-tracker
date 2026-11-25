@@ -334,6 +334,18 @@ async function loadAll() {
 }
 
 // ── Helpers ───────────────────────────────────────────────
+// Udlånsdatoen bevares når kortet går fra Ude til Savnet (og når status ikke ændres)
+function nextSince(oldStatus, oldSince, newStatus) {
+  var today = new Date().toISOString().slice(0,10);
+  if (newStatus === oldStatus && oldSince) return oldSince;
+  if (oldStatus === 'ude' && newStatus === 'savnet' && oldSince) return oldSince;
+  return today;
+}
+function fmtDate(s) {
+  if (!s) return '';
+  var d = new Date(s);
+  return d.toLocaleDateString('da-DK', {day:'numeric', month:'short', year:'numeric'});
+}
 function nowTs() {
   var d = new Date();
   var p = function(n) { return n.toString().padStart(2,'0'); };
@@ -399,7 +411,7 @@ function cardHTML(c) {
     +'<span class="badge badge-'+c.status+'">'+badge+'</span></div>'
     +'<div class="card-cap">'+c.cap+'</div>'
     +'<div class="card-info">'+info+'</div>'
-    +'<div class="card-date">'+daysSince(c.since)+'</div>'
+    +'<div class="card-date">'+(c.status==='ledig' ? 'Ledig siden '+fmtDate(c.since) : 'Udlånt '+fmtDate(c.since)+' · '+daysSince(c.since))+'</div>'
     +'</div>';
 }
 
@@ -651,7 +663,7 @@ async function saveCard(id) {
     await sbFetch('/photographers?on_conflict=name', 'POST', {name: newPhotoNew}, {'Prefer': 'return=representation,resolution=merge-duplicates'});
     photographers.push(newPhotoNew);
   }
-  var updated = {id:id, status:newStatus, photographer:newPhoto, project:newProject, notes:newNotes, since:new Date().toISOString().slice(0,10), cap:c.cap};
+  var updated = {id:id, status:newStatus, photographer:newPhoto, project:newProject, notes:newNotes, since:nextSince(c.status, c.since, newStatus), cap:c.cap};
   setSyncing(true);
   var r = await sbFetch('/cards?on_conflict=id', 'POST', updated, {'Prefer': 'return=representation,resolution=merge-duplicates'});
   if (!r.ok) { setSyncing(false); showError('Kunne ikke gemme kort'); return; }
@@ -792,8 +804,11 @@ function renderMobileScan(card) {
     +'</div>'
     +'<div style="font-size:12px;color:#555;font-family:monospace;margin-bottom:20px;">'+card.cap+'</div>';
 
-  if (isUde && card.project) {
-    html += '<div style="font-size:13px;color:#60a5fa;margin-bottom:16px;">Aktuel produktion: <strong>'+card.project+'</strong></div>';
+  if ((isUde || isSavnet) && card.project) {
+    html += '<div style="font-size:13px;color:#60a5fa;margin-bottom:6px;">Aktuel produktion: <strong>'+card.project+'</strong></div>';
+  }
+  if ((isUde || isSavnet) && card.since) {
+    html += '<div style="font-size:12px;color:#888;margin-bottom:16px;">Udlånt '+fmtDate(card.since)+' · '+daysSince(card.since)+'</div>';
   }
 
   html +=
@@ -815,21 +830,13 @@ function renderMobileScan(card) {
   box.innerHTML = html;
   box.dataset.cardId = card.id;
   box.dataset.cap = card.cap;
+  box.dataset.status = card.status;
+  box.dataset.since = card.since || '';
 
   // Direkte event listeners på knapperne — ingen inline onclick, ingen delegation
   var btnA = document.getElementById('btn-aflever');
   var btnS = document.getElementById('btn-savnet');
   var btnR = document.getElementById('btn-registrer');
-  
-  // DEBUG: vis hvilke knapper der blev fundet
-  var foundBtns = [];
-  if (btnA) foundBtns.push('aflever');
-  if (btnS) foundBtns.push('savnet');
-  if (btnR) foundBtns.push('registrer');
-  var dbg = document.createElement('div');
-  dbg.style.cssText = 'background:#1a1a3a;color:#60a5fa;border-radius:6px;padding:6px 10px;font-size:10px;margin-top:10px;font-family:monospace;';
-  dbg.textContent = 'Knapper fundet: ' + (foundBtns.length ? foundBtns.join(', ') : 'INGEN!');
-  document.getElementById('scan-box').appendChild(dbg);
   
   if (btnA) btnA.addEventListener('click', function() { submitMobileScan(card.id, 'returneret'); });
   if (btnS) btnS.addEventListener('click', function() { submitMobileScan(card.id, 'savnet'); });
@@ -841,13 +848,6 @@ function renderMobileScan(card) {
 }
 
 function submitMobileScan(kortId, action) {
-  // DEBUG: vis at funktionen kørte
-  var debugDiv = document.createElement('div');
-  debugDiv.style.cssText = 'background:#1a3a1a;color:#4ade80;border-radius:6px;padding:8px 12px;font-size:12px;margin-bottom:10px;font-family:monospace;';
-  debugDiv.textContent = 'Klik registreret: ' + kortId + ' / ' + action;
-  var box = document.getElementById('scan-box');
-  if (box) box.prepend(debugDiv);
-
   var projectEl = document.getElementById('scan-project');
   var project = projectEl ? projectEl.value.trim() : '';
 
@@ -867,9 +867,10 @@ function submitMobileScan(kortId, action) {
 
   var status = action === 'udlaan' ? 'ude' : action === 'returneret' ? 'ledig' : 'savnet';
   var cap = document.getElementById('scan-box').dataset.cap || '128GB';
-  var today = new Date().toISOString().slice(0, 10);
+  var sbox = document.getElementById('scan-box');
+  var since = nextSince(sbox.dataset.status, sbox.dataset.since, status);
 
-  var cardData = {id: kortId, status: status, project: project, photographer: '', since: today, notes: '', cap: cap};
+  var cardData = {id: kortId, status: status, project: project, photographer: '', since: since, notes: '', cap: cap};
 
   sbFetch('/cards?on_conflict=id', 'POST', cardData, {'Prefer': 'return=representation,resolution=merge-duplicates'})
     .then(function(r) {
